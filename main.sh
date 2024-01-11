@@ -220,8 +220,6 @@ show_help()
 
 
 echo "Commandes :"$'\n'
-echo "Utilisation: $0 -f <nom_fichier_csv> -o <option_traitement>"$'\n'
-echo "otpion -h : Afficher l'aide"$'\n'
 echo "option -d1 : Conducteurs avec le plus de trajets "$'\n'
 echo "option -d2 : Conducteurs et la plus grande distance: "$'\n'
 echo "option -l : Les 10 trajets les plus longs "$'\n'
@@ -269,8 +267,8 @@ return 0
 
 echo "---------------------------------------"$'\n'
 
-#read -p "Entrez un nom d'utilisateur : " username
-#username_check "$username"
+read -p "Entrez un nom d'utilisateur : " username
+username_check "$username"
 
 echo "---------------------------------------"$'\n'
 
