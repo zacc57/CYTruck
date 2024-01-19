@@ -1,8 +1,7 @@
 #!/bin/bash
 
 
-
-
+clear
 
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
@@ -26,6 +25,8 @@ data_root="$root/$data_folder/$data_file"
 temp_root="$root/$temp_folder"
 demo_root="$root/$demo_folder"
 images_root="$root/$images_folder"
+
+
 
 
 
@@ -67,13 +68,14 @@ fi
 
 
 # dossier demo : existence
-if [ -d "$demo_root" ]; 
-then
-    echo "Le fichier $demo_folder existe."$'\n'
+if [ ! -d "$demo_root" ];
+ then
+    mkdir "$demo_folder"
+    echo "Le dossier $demo_folder est créé"$'\n'
 else
-    echo "Le fichier $demo_folder n'existe pas."
-     echo "Résolvez le problème"$'\n'
+   echo "Dossier $demo_folder opérationnel"$'\n'
 fi
+
 
 
 
@@ -116,20 +118,17 @@ fi
 gnuplot_d1() 
 {
 
+date=$(date +"%H-%M-%Y-%S")
+output_png="images/d1_${date}_${username}.png"
 
 echo "Traitement d1 en cours"
 start_time=$(date +%s)
 
 
-cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > data.txt
-
-cat data.txt
-
+cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.txt 
 
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
-
-rm data.txt
 
 
 }
@@ -139,17 +138,20 @@ rm data.txt
 gnuplot_d2() 
 {
 
+date=$(date +"%H-%M-%Y-%S")
+output_png="images/d2_${date}_${username}.png"
+
+
 echo "Traitement d2 en cours"
 start_time=$(date +%s)
 
-cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > data.txt
+cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.txt
 
-cat data.txt
 
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
-rm data.txt
+
 }
 
 
@@ -158,19 +160,19 @@ rm data.txt
 
 gnuplot_l() 
 {
+
+
+date=$(date +"%H-%M-%Y-%S")
+output_png="images/dl_${date}_${username}.png"
+
 echo "Traitement l en cours"
 start_time=$(date +%s)
 
-cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > data.txt
-
-cat data.txt
-
-
+cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.txt
 
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
-rm data.txt
 }
 
 
@@ -189,24 +191,177 @@ echo "Temps d'execution : ($end_time - $start_time) seconde.s "
 
 
 
-graph () {
+gnu_tracer () 
+{
 
 
-gnuplot << EOF
+if ! command -v gnuplot &> /dev/null; 
+then
+        echo "Gnuplot non installé"
+        exit 1
+fi
 
-set term pngcairo enhanced font "arial,10" size 800,600
+
+
+ if [ "$#" -ne 1 ]; 
+ then
+        echo "Usage: gnu_tracer <data.txt>"
+        exit 1
+fi
+
+local tab_data="$1"
+cat $tab_data
+
+gnuplot <<- EOP
+
+set term png
+set output "$output_png"
+
 set style fill solid
 set boxwidth 0.5
-set output "$output_png"
+
+
 set xlabel "NB ROUTES"
 set ylabel "DRIVER NAMES"
 set title "Option -d1 : Nb routes = f(Driver)"
+  
+ set datafile separator " "  
+  
+plot "$tab_data" using 4:5
 
-plot 'data.txt' 
-EOF
+
+EOP
+
+
+echo 'Tracage enregistré sous : '$output_png' '
+
+
+
+if command -v xdg-open &> /dev/null; 
+then
+        xdg-open  "$output_png"
+    else
+        echo "Ouverture impossible, essayez manuellement"
+fi
+
 
 }
 
+
+gnu_trace2 () 
+{
+
+
+if ! command -v gnuplot &> /dev/null; 
+then
+        echo "Gnuplot non installé"
+        exit 1
+fi
+
+
+
+ if [ "$#" -ne 1 ]; 
+ then
+        echo "Usage: gnu_tracer <data.txt>"
+        exit 1
+fi
+
+tab_data="$1"
+cat $tab_data
+
+gnuplot <<- EOP
+
+set term png
+set output "$output_png"
+
+set style fill solid
+set boxwidth 0.5
+
+
+set xlabel "NB ROUTES"
+set ylabel "DRIVER NAMES"
+set title "Option -d1 : Nb routes = f(Driver)"
+  
+ set datafile separator " "  
+  
+plot "$tab_data" using 1:2
+
+
+EOP
+
+
+echo 'Tracage enregistré sous : '$output_png' '
+
+
+
+if command -v xdg-open &> /dev/null; 
+then
+        xdg-open  "$output_png"
+    else
+        echo "Ouverture impossible, essayez manuellement"
+fi
+
+
+}
+
+
+
+gnu_tracel () 
+{
+
+
+if ! command -v gnuplot &> /dev/null; 
+then
+        echo "Gnuplot non installé"
+        exit 1
+fi
+
+
+
+ if [ "$#" -ne 1 ]; 
+ then
+        echo "Usage: gnu_tracer <data.txt>"
+        exit 1
+fi
+
+tab_data="$1"
+cat $tab_data
+
+gnuplot <<- EOP
+
+set term png
+set output "$output_png"
+
+set style fill solid
+set boxwidth 0.5
+
+
+set xlabel "NB ROUTES"
+set ylabel "DRIVER NAMES"
+set title "Option -d1 : Nb routes = f(Driver)"
+  
+set datafile separator ";"  
+set yrange [] reverse 
+ 
+plot "$tab_data" using 1:2 with points title "Graphique"
+
+
+EOP
+
+
+echo 'Tracage enregistré sous : '$output_png' '
+
+
+
+if command -v xdg-open &> /dev/null; 
+then
+        xdg-open  "$output_png"
+    else
+        echo "Ouverture impossible, essayez manuellement"
+fi
+
+
+}
 
 
 
@@ -273,8 +428,8 @@ return 0
 
 echo "---------------------------------------"$'\n'
 
-#read -p "Entrez un nom d'utilisateur : " username
-#username_check "$username"
+read -p "Entrez un nom d'utilisateur : " username
+username_check "$username"
 
 echo "---------------------------------------"$'\n'
 
@@ -291,7 +446,3 @@ echo "---------------------------------------"$'\n'
 show_help
 
 echo "---------------------------------------"$'\n'
-
-gnuplot_d1
-gnuplot_d2
-gnuplot_l
