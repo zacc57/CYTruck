@@ -633,7 +633,6 @@ case "$arg" in
 	*)
          echo "Argument non reconnu: $arg"
 	 show_help
-	 prog_exit
 	 echo "---------------------------------------"$'\n'
 	 ;;
 esac
