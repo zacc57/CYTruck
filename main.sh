@@ -264,7 +264,7 @@ case "$1" in
         
         
         -d1)
-            echo "L'argument est 'valeur1'."
+            echo "Tracage en cours : -d1"
 
 	    #on prend le fichier data
 local tab_data="$1"
@@ -301,7 +301,7 @@ echo 'Tracage enregistré sous : '$output_png' '
         
                 
         -d2)
-            echo "L'argument est 'valeur2'."
+            echo "Tracage en cours : -d2"
 
 tab_data="$1"
 cat $tab_data
@@ -342,7 +342,7 @@ echo 'Tracage enregistré sous : '$output_png' '
        
        
        -l)
-            echo "L'argument est 'valeur2'."
+            echo "Tracage en cours : l"
             
 	    
    tab_data="$1"
@@ -386,23 +386,25 @@ echo 'Tracage enregistré sous : '$output_png' '
         
         
         -t)
-            echo "L'argument est 'valeur2'."
+            echo "Tracage en cours : -t"
             ;;
         -s)
-            echo "L'argument est 'valeur2'."
+            echo "Tracage en cours : -s"
             ;;
         *)
-            echo "L'argument est une valeur inattendue : $1."
-            ;;
+            echo " Argument non valide : $1"
+            show_help 
+	    ;;
     esac
 
 
-
+#ouverture image du graphique
+#si impossible : aller dans dossier 'images'
 if command -v xdg-open &> /dev/null; 
 then
         xdg-open  "$output_png"
     else
-        echo "Ouverture impossible, essayez manuellement"
+        echo "Ouverture impossible, essayez manuellement : dossier 'images'"
 fi
 
 
@@ -486,9 +488,10 @@ verif_arg ()
 #chaque argument peut être mis une fois
 #soit un total de 6 disponibles
 
+#arguments sans les doublons
 arg_uniq=($(printf "%s\n" "$@" | sort -u))
 
-
+#si 0 arguments rentrés : exit
 if  [ "$#" -eq 0 ]; 
 then
     echo "Aucun argument spécifié"$'\n'
@@ -496,6 +499,7 @@ then
     prog_exit
     exit 1
 
+#si plus de 6 arguments rentrés : exit
 elif [ "$#" -gt 6 ]; 
 then
     echo "Erreur: nombre d'arguments incorrect"$'\n'
@@ -503,12 +507,10 @@ then
     prog_exit
     exit 1
 
+#si doublons, les rendre uniques
 elif [ "${#arg_uniq[@]}" -ne "$#" ]; 
 then
-    echo "Erreur: chaque arguments doit être unique"$'\n'
-    show_help
-    prog_exit
-    exit 1
+    "$#" = "${#arg_uniq[@]}" 
 else
    echo "Argument.s valide.s"$'\n'
 fi
