@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+#plus de visibilité sur le termial de commande
 clear
 
 #-----------------------------------------------------------------------
@@ -20,6 +20,8 @@ progc_folder="progc"
 
 data_file="data.csv" 
 
+
+#chemin vers les dossiers/ficiers à vérifier
 temp_root="$root/$temp_folder"
 data_root="$root/$data_folder/$data_file"
 temp_root="$root/$temp_folder"
@@ -67,7 +69,7 @@ fi
 
 
 
-# dossier demo : existence
+# dossier demo : si n'existe pas, création
 if [ ! -d "$demo_root" ];
  then
     mkdir "$demo_folder"
@@ -79,7 +81,7 @@ fi
 
 
 
-# dossier temp :
+# dossier temp : le créer ou le vider
 if [ ! -d "$temp_root" ]; 
 then
     mkdir "$temp_folder"
@@ -118,13 +120,14 @@ fi
 gnuplot_d1() 
 {
 
+#mise en place timer + sortie image
 date=$(date +"%H-%M-%Y-%S")
 output_png="images/d1_${date}_${username}.png"
 
 echo "Traitement d1 en cours"
 start_time=$(date +%s)
 
-
+"prendre colonne concernée, sort pour uniq (obligatoire)
 cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.txt 
 
 
@@ -148,6 +151,7 @@ output_png="images/d2_${date}_${username}.png"
 echo "Traitement d2 en cours"
 start_time=$(date +%s)
 
+#awk créer colonne et boucle for dedans pour calcul
 cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.txt
 
 gnuplot_tracage -d2
@@ -173,6 +177,7 @@ output_png="images/l_${date}_${username}.png"
 echo "Traitement l en cours"
 start_time=$(date +%s)
 
+#pareil précedemment, mais colonnes prises différentes
 cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.txt
 
 
@@ -233,7 +238,7 @@ echo "Temps d'execution : ($end_time - $start_time) seconde.s "
 gnuplot_tracage()
 {
 
-
+#vérification présence gnuplot sur appareil
 if ! command -v gnuplot &> /dev/null; 
 then
         echo "Gnuplot non installé"
@@ -241,7 +246,7 @@ then
 fi
 
 
-
+#un argument est requis pour faire fonctionner fonction
  if [ "$#" -ne 1 ]; 
  then
         echo "Usage: gnu_tracer <data.txt>"
@@ -258,10 +263,11 @@ case "$1" in
             ;;
         
 
-
+#on prend le fichier data
 local tab_data="$1"
 cat $tab_data
 
+#commandes gnuplot reunies en 1 bloc
 gnuplot <<- EOP
 
 set term png
@@ -281,6 +287,7 @@ plot "$tab_data" using 4:5
 
 EOP
 
+#enregistré dans fichiers images
 echo 'Tracage enregistré sous : '$output_png' '
 
         
@@ -419,6 +426,12 @@ return 1
 username_check() 
 {
 
+#pseudo de [1;25] caractères
+#pas d'espace, chaine de caractères
+#permet de personnaliser nom images
+#pour plusieurs utilisations
+
+
 if [ "$#" -ne 1 ]; 
  then
         echo "Usage: username_check <nom>"
@@ -453,6 +466,10 @@ return 0
 verif_arg () 
 {
 
+#vérification des arguments au lancement
+#du programme :
+#chaque argument peut être mis une fois
+#soit un total de 6 disponibles
 
 arg_uniq=($(printf "%s\n" "$@" | sort -u))
 
@@ -486,6 +503,8 @@ fi
 }
 
 
+#compteur de 10 secondes
+#avant fermeture programme
 
 prog_exit () 
 {
