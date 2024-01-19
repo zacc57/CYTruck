@@ -127,6 +127,9 @@ start_time=$(date +%s)
 
 cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.txt 
 
+
+gnuplot_tracage -d1
+
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
@@ -147,6 +150,8 @@ start_time=$(date +%s)
 
 cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.txt
 
+gnuplot_tracage -d2
+
 
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
@@ -163,12 +168,17 @@ gnuplot_l()
 
 
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/dl_${date}_${username}.png"
+output_png="images/l_${date}_${username}.png"
 
 echo "Traitement l en cours"
 start_time=$(date +%s)
 
 cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.txt
+
+
+
+gnuplot_tracage -l
+
 
 end_time=$(date +%s)
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
@@ -179,9 +189,36 @@ echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
 gnuplot_t ()
 {
+
+date=$(date +"%H-%M-%Y-%S")
+output_png="images/t_${date}_${username}.png"
+
+
+
 echo "Traitement t en cours"
 start_time=$(date +%s)
 
+gnuplot_tracage -t
+
+end_time=$(date +%s)
+echo "Temps d'execution : ($end_time - $start_time) seconde.s "
+
+
+}
+
+
+
+gnuplot_s ()
+{
+
+date=$(date +"%H-%M-%Y-%S")
+output_png="images/s_${date}_${username}.png"
+
+
+echo "Traitement s en cours"
+start_time=$(date +%s)
+
+gnuplot_tracage -s
 
 end_time=$(date +%s)
 echo "Temps d'execution : ($end_time - $start_time) seconde.s "
