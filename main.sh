@@ -343,32 +343,32 @@ echo 'Tracage enregistré sous : '$output_png' '
        
        -l)
             echo "Tracage en cours : l"
-            
-	    
-   tab_data="$1"
-cat $tab_data
 
-gnuplot <<- EOP
+gnuplot << EOF
 
-set term png
-set output "$output_png"
+set terminal pngcairo enhanced font 'Arial,12' size 1000,800
+set output "gnuplot_l.png"
+set datafile separator ";"
 
-set style fill solid
-set boxwidth 0.5
+set style data histograms
+set style fill solid border -1
 
+set title "option -l : Distance = f(Route)" 
+set xlabel "ROUTE ID" 
+set ylabel "DISTANCE (Km)" 
 
-set xlabel "NB ROUTES"
-set ylabel "DRIVER NAMES"
-set title "Option -d1 : Nb routes = f(Driver)"
-  
-set datafile separator ";"  
-set yrange [] reverse 
+set boxwidth 0.9 relative
+set yrange [0:3000]
+set style line 1 lc rgb '#40e0d0' lt 1 lw 2
+set style fill solid noborder
+
+plot 'data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
+
+EOF
+
+eog gnuplot_l.png 
+
  
-plot "$tab_data" using 1:2 with points title "Graphique"
-
-
-EOP
-
 
 echo 'Tracage enregistré sous : '$output_png' '
   
