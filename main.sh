@@ -1,11 +1,15 @@
 #!/bin/bash
 
+
 #plus de visibilité sur le termial de commande
 clear
 
+
+
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
-# GESTION DES DOSSIERS ET FICHIERS
+#                 GESTION DES DOSSIERS ET FICHIERS
+
 
 
 
@@ -127,7 +131,8 @@ output_png="images/d1_${date}_${username}.png"
 echo "Traitement d1 en cours"
 start_time=$(date +%s)
 
-"prendre colonne concernée, sort pour uniq (obligatoire)
+#prendre colonne concernée, sort pour uniq (obligatoire)
+#tout fichier .txt ressortissant mis dans demo/
 cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.txt 
 
 
@@ -260,10 +265,8 @@ case "$1" in
         
         -d1)
             echo "L'argument est 'valeur1'."
-            ;;
-        
 
-#on prend le fichier data
+	    #on prend le fichier data
 local tab_data="$1"
 cat $tab_data
 
@@ -289,13 +292,16 @@ EOP
 
 #enregistré dans fichiers images
 echo 'Tracage enregistré sous : '$output_png' '
+	    
+     ;;
+        
+
+
 
         
                 
         -d2)
             echo "L'argument est 'valeur2'."
-            ;;
-
 
 tab_data="$1"
 cat $tab_data
@@ -323,6 +329,11 @@ EOP
 
 echo 'Tracage enregistré sous : '$output_png' '
 
+     
+	    ;;
+
+
+
   
        
        
@@ -332,11 +343,9 @@ echo 'Tracage enregistré sous : '$output_png' '
        
        -l)
             echo "L'argument est 'valeur2'."
-            ;;
-
-
-
-tab_data="$1"
+            
+	    
+   tab_data="$1"
 cat $tab_data
 
 gnuplot <<- EOP
@@ -362,6 +371,12 @@ EOP
 
 
 echo 'Tracage enregistré sous : '$output_png' '
+  
+     
+     ;;
+
+
+
 
 
 
