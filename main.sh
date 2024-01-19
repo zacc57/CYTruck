@@ -191,10 +191,27 @@ echo "Temps d'execution : ($end_time - $start_time) seconde.s "
 
 
 
-gnu_tracer () 
+
+
+gnuplot_tracage()
 {
 
 
+if ["$#" -ne 1 ];
+then
+   echo "Erreur : la fonction doit avoir exactement 1 argument."
+   exit 1
+fi
+
+
+case "$1" in
+        
+        
+        
+        -d1)
+            echo "L'argument est 'valeur1'."
+            ;;
+        
 if ! command -v gnuplot &> /dev/null; 
 then
         echo "Gnuplot non installé"
@@ -229,13 +246,9 @@ set title "Option -d1 : Nb routes = f(Driver)"
   
 plot "$tab_data" using 4:5
 
-
 EOP
 
-
 echo 'Tracage enregistré sous : '$output_png' '
-
-
 
 if command -v xdg-open &> /dev/null; 
 then
@@ -244,15 +257,16 @@ then
         echo "Ouverture impossible, essayez manuellement"
 fi
 
-
-}
-
-
-gnu_trace2 () 
-{
-
-
-if ! command -v gnuplot &> /dev/null; 
+        
+        
+        
+        -d2)
+            echo "L'argument est 'valeur2'."
+            ;;
+       
+       
+       
+ if ! command -v gnuplot &> /dev/null; 
 then
         echo "Gnuplot non installé"
         exit 1
@@ -300,14 +314,18 @@ then
     else
         echo "Ouverture impossible, essayez manuellement"
 fi
+      
+       
+       
+       
+       
+       
+       
+       
+       -l)
+            echo "L'argument est 'valeur2'."
+            ;;
 
-
-}
-
-
-
-gnu_tracel () 
-{
 
 
 if ! command -v gnuplot &> /dev/null; 
@@ -359,12 +377,22 @@ then
     else
         echo "Ouverture impossible, essayez manuellement"
 fi
-
+        
+        
+        
+        
+        -t)
+            echo "L'argument est 'valeur2'."
+            ;;
+        -s)
+            echo "L'argument est 'valeur2'."
+            ;;
+        *)
+            echo "L'argument est une valeur inattendue : $1."
+            ;;
+    esac
 
 }
-
-
-
 
 
 
@@ -401,15 +429,17 @@ username_check()
 
 username="$1"
 
-if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; then
-    echo "Error : The username must be a character string without spaces"
+if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; 
+then
+    echo "Erreur : le nom est une chaine de caractères sans espace"
     return 1
 fi
 
 length=${#username}
 
-if ((length < 1 || length > 25)); then
-  echo "Error : Length must be between 1 and 25 characters"
+if ((length < 1 || length > 25)); 
+then
+  echo "Erreur : le nom doit faire entre 1 et 25 caractères"
   return 1
 fi
 
@@ -421,10 +451,76 @@ return 0
 
 
 
+verif_arg () 
+{
+
+
+arg_uniq=($(printf "%s\n" "$@" | sort -u))
+
+
+if  [ "$#" -eq 0 ]; 
+then
+    echo "Aucun argument spécifié"$'\n'
+    show_help
+    prog_exit
+    exit 1
+
+elif [ "$#" -gt 6 ]; 
+then
+    echo "Erreur: nombre d'arguments incorrect"$'\n'
+    show_help
+    prog_exit
+    exit 1
+
+elif [ "${#arg_uniq[@]}" -ne "$#" ]; 
+then
+    echo "Erreur: chaque arguments doit être unique"$'\n'
+    show_help
+    prog_exit
+    exit 1
+else
+   echo "Argument.s valide.s"$'\n'
+fi
+
+
+
+}
+
+
+
+prog_exit () 
+{
+
+for ((i = 1; i <= 10; i++)); 
+do
+	echo $i
+	sleep 1
+done
+
+clear
+
+echo "CY Truck : fin"
+exit 0
+
+}
+
+
+
+
+
+
 #--------------------------------------------------------------------
 #--------------------------------------------------------------------
 #                  MAIN PROGRAM
 
+
+
+
+
+
+echo "---------------------------------------"$'\n'
+
+verif_arg "$@"
 
 echo "---------------------------------------"$'\n'
 
@@ -443,6 +539,70 @@ folder_existence
 
 echo "---------------------------------------"$'\n'
 
-show_help
+echo "Nombre total d'arguments : $#"$'\n'
+
+echo "Liste des arguments :"$'\n'
+for arg in "$@"; 
+    echo "$arg"$'\n'
+done
+
 
 echo "---------------------------------------"$'\n'
+
+
+
+
+
+for ((i=1; i<=$#; i++)); 
+do
+    if [ "${!i}" = "-h" ]; 
+    then       
+       echo "argument -h"$'\n'
+       show_help
+       echo "---------------------------------------"$'\n'
+       set -- "${@:1:i-1}" "${@:i+1:$#}"
+    break
+fi
+done
+
+
+for arg in "$@"; do
+case "$arg" in
+	-d1)
+	  gnuplot_d1
+	  echo "---------------------------------------"$'\n'
+	  ;;
+	
+	-d2)
+	 gnuplot_d2
+	 echo "---------------------------------------"$'\n'
+	 ;;
+	
+	-l)
+	 gnuplot_l
+	 echo "---------------------------------------"$'\n'
+	 ;;
+	
+	-t)
+	 gnuplot_t
+	 echo "---------------------------------------"$'\n'
+	 ;;
+	
+	-s)
+	 gnuplot_s
+	 echo "---------------------------------------"$'\n'
+	 ;;
+	
+	*)
+         echo "Argument non reconnu: $arg"
+	 show_help
+	 prog_exit
+	 echo "---------------------------------------"$'\n'
+	 ;;
+esac
+done
+
+echo "---------------------------------------"$'\n'
+prog_exit
+
+
