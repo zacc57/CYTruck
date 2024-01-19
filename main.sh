@@ -234,21 +234,6 @@ gnuplot_tracage()
 {
 
 
-if ["$#" -ne 1 ];
-then
-   echo "Erreur : la fonction doit avoir exactement 1 argument."
-   exit 1
-fi
-
-
-case "$1" in
-        
-        
-        
-        -d1)
-            echo "L'argument est 'valeur1'."
-            ;;
-        
 if ! command -v gnuplot &> /dev/null; 
 then
         echo "Gnuplot non installé"
@@ -262,6 +247,17 @@ fi
         echo "Usage: gnu_tracer <data.txt>"
         exit 1
 fi
+
+
+case "$1" in
+        
+        
+        
+        -d1)
+            echo "L'argument est 'valeur1'."
+            ;;
+        
+
 
 local tab_data="$1"
 cat $tab_data
@@ -287,35 +283,12 @@ EOP
 
 echo 'Tracage enregistré sous : '$output_png' '
 
-if command -v xdg-open &> /dev/null; 
-then
-        xdg-open  "$output_png"
-    else
-        echo "Ouverture impossible, essayez manuellement"
-fi
-
         
-        
-        
+                
         -d2)
             echo "L'argument est 'valeur2'."
             ;;
-       
-       
-       
- if ! command -v gnuplot &> /dev/null; 
-then
-        echo "Gnuplot non installé"
-        exit 1
-fi
 
-
-
- if [ "$#" -ne 1 ]; 
- then
-        echo "Usage: gnu_tracer <data.txt>"
-        exit 1
-fi
 
 tab_data="$1"
 cat $tab_data
@@ -343,16 +316,7 @@ EOP
 
 echo 'Tracage enregistré sous : '$output_png' '
 
-
-
-if command -v xdg-open &> /dev/null; 
-then
-        xdg-open  "$output_png"
-    else
-        echo "Ouverture impossible, essayez manuellement"
-fi
-      
-       
+  
        
        
        
@@ -364,20 +328,6 @@ fi
             ;;
 
 
-
-if ! command -v gnuplot &> /dev/null; 
-then
-        echo "Gnuplot non installé"
-        exit 1
-fi
-
-
-
- if [ "$#" -ne 1 ]; 
- then
-        echo "Usage: gnu_tracer <data.txt>"
-        exit 1
-fi
 
 tab_data="$1"
 cat $tab_data
@@ -408,12 +358,7 @@ echo 'Tracage enregistré sous : '$output_png' '
 
 
 
-if command -v xdg-open &> /dev/null; 
-then
-        xdg-open  "$output_png"
-    else
-        echo "Ouverture impossible, essayez manuellement"
-fi
+
         
         
         
@@ -428,6 +373,16 @@ fi
             echo "L'argument est une valeur inattendue : $1."
             ;;
     esac
+
+
+
+if command -v xdg-open &> /dev/null; 
+then
+        xdg-open  "$output_png"
+    else
+        echo "Ouverture impossible, essayez manuellement"
+fi
+
 
 }
 
@@ -444,13 +399,14 @@ fi
 show_help() 
 {
 
-
-echo "Traitements :"$'\n'
+echo "Usage: bash main.sh <arg1> <arg2> <arg3> <arg4> <arg5> <arg6>"$'\n'
+echo "Arguments :"$'\n'
 echo "option -d1 : Conducteurs avec le plus de trajets "$'\n'
 echo "option -d2 : Conducteurs et la plus grande distance: "$'\n'
 echo "option -l : Les 10 trajets les plus longs "$'\n'
 echo "option -t :Les 10 villes les plus traversées "$'\n'
 echo "option -s : Statistiques sur les étapes "$'\n'
+echo "option -h : afficher l'aide"$'\n'
 
 return 1
 
@@ -463,6 +419,12 @@ return 1
 username_check() 
 {
 
+if [ "$#" -ne 1 ]; 
+ then
+        echo "Usage: username_check <nom>"
+        echo "1 seul nom requis"
+	exit 1
+fi
 
 username="$1"
 
@@ -632,7 +594,7 @@ case "$arg" in
 	
 	*)
          echo "Argument non reconnu: $arg"
-	 show_help
+	 echo "Argument ignoré"$'\n'
 	 echo "---------------------------------------"$'\n'
 	 ;;
 esac
