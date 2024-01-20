@@ -183,7 +183,7 @@ echo "Traitement l en cours"
 start_time=$(date +%s)
 
 #pareil précedemment, mais colonnes prises différentes
-cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.txt
+cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
 
 
 
@@ -191,6 +191,7 @@ gnuplot_tracage -l
 
 
 end_time=$(date +%s)
+eog images/l_${date}_${username}.png
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
 }
@@ -274,7 +275,7 @@ cat $tab_data
 gnuplot <<- EOP
 
 set term png
-set output "$output_png"
+set output 'images/d2_${date}_${username}.png'
 
 set style fill solid
 set boxwidth 0.5
@@ -291,7 +292,7 @@ plot "$tab_data" using 4:5
 EOP
 
 #enregistré dans fichiers images
-echo 'Tracage enregistré sous : '$output_png' '
+echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
 	    
      ;;
         
@@ -347,7 +348,7 @@ echo 'Tracage enregistré sous : '$output_png' '
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1000,800
-set output "gnuplot_l.png"
+set output 'images/l_${date}_${username}.png'
 set datafile separator ";"
 
 set style data histograms
@@ -362,15 +363,12 @@ set yrange [0:3000]
 set style line 1 lc rgb '#40e0d0' lt 1 lw 2
 set style fill solid noborder
 
-plot 'data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
+plot 'demo/data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
 EOF
 
-eog gnuplot_l.png 
 
- 
-
-echo 'Tracage enregistré sous : '$output_png' '
+echo 'Tracage enregistré sous : 'images/l_${date}_${username}.png' '
   
      
      ;;
@@ -396,17 +394,6 @@ echo 'Tracage enregistré sous : '$output_png' '
             show_help 
 	    ;;
     esac
-
-
-#ouverture image du graphique
-#si impossible : aller dans dossier 'images'
-if command -v xdg-open &> /dev/null; 
-then
-        xdg-open  "$output_png"
-    else
-        echo "Ouverture impossible, essayez manuellement : dossier 'images'"
-fi
-
 
 }
 
@@ -520,13 +507,28 @@ fi
 }
 
 
+
+affich_arg () 
+{
+
+echo "Nombre total d'arguments : $#"$'\n'
+echo "Liste des arguments :"
+for arg in "$@"; do
+        echo "$arg"
+    done
+
+
+}
+
+
+
 #compteur de 10 secondes
 #avant fermeture programme
 
 prog_exit () 
 {
 
-for ((i = 1; i <= 10; i++)); 
+for ((i = 1; i <= 20; i++)); 
 do
 	echo $i
 	sleep 1
@@ -574,12 +576,9 @@ folder_existence
 
 echo "---------------------------------------"$'\n'
 
-echo "Nombre total d'arguments : $#"$'\n'
 
-echo "Liste des arguments :"$'\n'
-for arg in "$@"; 
-    echo "$arg"$'\n'
-done
+affich_arg "$@"
+
 
 
 echo "---------------------------------------"$'\n'
@@ -605,6 +604,7 @@ for arg in "$@"; do
 case "$arg" in
 	-d1)
 	  gnuplot_d1
+	  
 	  echo "---------------------------------------"$'\n'
 	  ;;
 	
@@ -638,5 +638,7 @@ done
 
 echo "---------------------------------------"$'\n'
 prog_exit
+
+
 
 
