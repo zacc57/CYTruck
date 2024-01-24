@@ -127,13 +127,13 @@ gnuplot_d1()
 #mise en place timer + sortie image
 date=$(date +"%H-%M-%Y-%S")
 output_png="images/d1_${date}_${username}.png"
-
+ 
 echo "Traitement d1 en cours"
 start_time=$(date +%s)
 
 #prendre colonne concernée, sort pour uniq (obligatoire)
 #tout fichier .txt ressortissant mis dans demo/
-cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.txt 
+cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.dat
 
 
 gnuplot_tracage -d1
@@ -157,7 +157,7 @@ echo "Traitement d2 en cours"
 start_time=$(date +%s)
 
 #awk créer colonne et boucle for dedans pour calcul
-cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.txt
+cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
 
 gnuplot_tracage -d2
 
@@ -244,106 +244,94 @@ echo "Temps d'execution : ($end_time - $start_time) seconde.s "
 gnuplot_tracage()
 {
 
-#vérification présence gnuplot sur appareil
-if ! command -v gnuplot &> /dev/null; 
-then
-        echo "Gnuplot non installé"
-        exit 1
-fi
-
-
 #un argument est requis pour faire fonctionner fonction
- if [ "$#" -ne 1 ]; 
- then
-        echo "Usage: gnu_tracer <data.txt>"
+if [ "$#" -ne 1 ]; 
+then
+	echo "Usage: gnuplot_tracage <data.dat>"
         exit 1
 fi
 
 
 case "$1" in
         
-        
-        
+               
         -d1)
-            echo "Tracage en cours : -d1"
 
-	    #on prend le fichier data
-local tab_data="$1"
-cat $tab_data
+echo "Tracage en cours : -d1"
 
-#commandes gnuplot reunies en 1 bloc
-gnuplot <<- EOP
+gnuplot << EOF
 
-set term png
-set output 'images/d2_${date}_${username}.png'
+set terminal pngcairo enhanced font 'Arial,12' size 1200,1200
+set output 'images/d1_${date}_${username}.png'
+set datafile separator ";"
 
-set style fill solid
-set boxwidth 0.5
+set style data histograms
+set style fill solid border -1
+
+set xlabel "DRIVER NAMES" 
+set ylabel "option -d1 : Nb routes = f(Driver)" 
+set y2label "NB ROUTES"
+
+set ytics right
+set xtics rotate by 90
+set ytics rotate by 90
 
 
-set xlabel "NB ROUTES"
-set ylabel "DRIVER NAMES"
-set title "Option -d1 : Nb routes = f(Driver)"
-  
- set datafile separator " "  
-  
-plot "$tab_data" using 4:5
+set boxwidth 0.8 relative
+set yrange [0:250]
+set style line 1 lc rgb '#c79fef' lt 1 lw 2
+set style fill solid noborder
 
-EOP
+plot 'demo/data_d1.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
-#enregistré dans fichiers images
-echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
-	    
+EOF
+
+convert images/d1_${date}_${username}.png -rotate 90 images/d1_${date}_${username}.png
+
+echo 'Tracage enregistré sous : 'images/d1_${date}_${username}.png' '
      ;;
-        
-
-
-
-        
-                
+   
+   
         -d2)
-            echo "Tracage en cours : -d2"
 
-tab_data="$1"
-cat $tab_data
+echo "Tracage en cours : -d2"
 
-gnuplot <<- EOP
+gnuplot << EOF
 
-set term png
-set output "$output_png"
+set terminal pngcairo enhanced font 'Arial,12' size 1200,1200
+set output 'images/d2_${date}_${username}.png'
+set datafile separator ";"
 
-set style fill solid
-set boxwidth 0.5
+set style data histograms
+set style fill solid border -1
 
+set xlabel "DRIVER NAMES" 
+set ylabel "option -d2 : Distance = f(Driver)" 
+set y2label "DISTANCE (km)"
 
-set xlabel "NB ROUTES"
-set ylabel "DRIVER NAMES"
-set title "Option -d1 : Nb routes = f(Driver)"
-  
- set datafile separator " "  
-  
-plot "$tab_data" using 1:2
+set xtics rotate by 90
+set ytics rotate by 90
 
 
-EOP
+set boxwidth 0.8 relative
+set yrange [0:160000]
+set style line 1 lc rgb '#2ecc71' lt 1 lw 2
+set style fill solid noborder
 
+plot 'demo/data_d2.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
-echo 'Tracage enregistré sous : '$output_png' '
+EOF
 
-     
-	    ;;
+convert images/d2_${date}_${username}.png' -rotate 90 'images/d2_${date}_${username}.png
 
+echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
 
-
-  
-       
-       
-       
-       
+     ;;      
        
        
        -l)
-            echo "Tracage en cours : l"
+
+echo "Tracage en cours : l"
 
 gnuplot << EOF
 
@@ -384,11 +372,74 @@ echo 'Tracage enregistré sous : 'images/l_${date}_${username}.png' '
         
         
         -t)
-            echo "Tracage en cours : -t"
-            ;;
+
+echo "Tracage en cours : -t"
+           
+gnuplot << EOF
+
+set terminal pngcairo enhanced font 'Arial,12' size 1200,800
+set output 'images/t_${date}_${username}.png'
+set datafile separator ";"
+
+set style data histograms
+set style fill solid border -1
+
+set title "option -t : Nb routes = f(Towns)" 
+set xlabel "TOWN NAMES" 
+set ylabel "NB ROUTES" 
+
+set boxwidth 0.5 relative
+set yrange [0:3500]
+
+set style line 1 lc rgb '#87CEEB' lt 1 lw 2
+set style line 2 lc rgb '#4169E1' lt 1 lw 2
+set style fill solid noborder
+
+plot 'demo/data_t.dat' using 2:xtic(1)  with boxes linestyle 1 title 'Total routes', \
+     'demo/data_t.dat' using 3:xtic(1)  with boxes linestyle 2 title 'First Town'
+
+
+EOF
+
+echo 'Tracage enregistré sous : 'images/t_${date}_${username}.png' '
+  
+
+           
+           
+           
+           
+           
+           ;;
         -s)
-            echo "Tracage en cours : -s"
-            ;;
+
+echo "Tracage en cours : -s"
+
+        
+gnuplot << EOF
+
+set terminal pngcairo enhanced font 'Arial,12' size 1200,800
+set output 'images/s_${date}_${username}.png'
+set datafile separator ";"
+
+set style data histograms
+set style fill solid border -1
+
+set title "option -s : Distance= f(Route)" 
+set xlabel "ROUTE ID" 
+set ylabel "DISTANCE (Km)" 
+
+set yrange [0:1000]
+
+plot 'demo/data_s.dat' using 1:3:5 with filledcurves closed lc rgb "blue" title 'Distances Max/min (Km)' ,\
+'demo/data_s.dat' using 1:4 with lines lc rgb "purple" lw 2 title 'Distance Average (Km)'
+
+
+EOF
+
+echo 'Tracage enregistré sous : 'images/s_${date}_${username}.png' '
+  
+        
+        ;;
         *)
             echo " Argument non valide : $1"
             show_help 
@@ -447,7 +498,7 @@ username="$1"
 
 if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; 
 then
-    echo "Erreur : le nom est une chaine de caractères sans espace"
+    echo "Erreur : le nom doit être une chaine de caractères sans espace"
     return 1
 fi
 
@@ -470,15 +521,18 @@ return 0
 verif_arg () 
 {
 
+echo "Vérification des arguments passés en paramètres"
+#liste des arguments
+prog_arguments=(-d1 -d2 -l -s -t -h -bibliographie)
+arguments_finaux=()
+
+
 #vérification des arguments au lancement
 #du programme :
 #chaque argument peut être mis une fois
 #soit un total de 6 disponibles
 
-#arguments sans les doublons
-arg_uniq=($(printf "%s\n" "$@" | sort -u))
-
-#si 0 arguments rentrés : exit
+#si 0 argument rentré : exit
 if  [ "$#" -eq 0 ]; 
 then
     echo "Aucun argument spécifié"$'\n'
@@ -486,23 +540,27 @@ then
     prog_exit
     exit 1
 
-#si plus de 6 arguments rentrés : exit
-elif [ "$#" -gt 6 ]; 
+#si plus de 7 arguments rentrés : exit
+elif [ "$#" -gt 7 ]; 
 then
     echo "Erreur: nombre d'arguments incorrect"$'\n'
     show_help
     prog_exit
     exit 1
-
-#si doublons, les rendre uniques
-elif [ "${#arg_uniq[@]}" -ne "$#" ]; 
-then
-    "$#" = "${#arg_uniq[@]}" 
-else
-   echo "Argument.s valide.s"$'\n'
 fi
 
 
+for arg in "$@"; 
+do
+for valid_arg in "${prog_arguments[@]}"; 
+do
+	if [ "$arg" == "$valid_arg" ]; 
+	then
+                arguments_finaux+=("$arg")
+                break
+        fi
+done
+done
 
 }
 
@@ -513,10 +571,10 @@ affich_arg ()
 
 echo "Nombre total d'arguments : $#"$'\n'
 echo "Liste des arguments :"
-for arg in "$@"; do
+for arg in "${arguments_finaux[@]}"; do
         echo "$arg"
     done
-
+echo ""
 
 }
 
@@ -543,7 +601,42 @@ exit 0
 
 
 
+show_bibliographie () 
+{
+echo "t"
 
+}
+
+verif_logiciel () {
+
+
+#vérification présence gnuplot sur appareil
+#sinon installation
+if ! command -v gnuplot &> /dev/null; 
+then
+        echo "Gnuplot non installé"
+        exit 1
+else 
+   echo "Gnuplot installé sur l'appareil"
+fi
+
+
+#vérification présence ImageMagick sur appareil, 
+#sinon installation
+if ! command -v convert &> /dev/null; then
+    echo "ImageMagick n'est pas installé" 
+    echo "Installation en cours"
+
+    # Installation sur un système basé sur Debian
+    sudo apt-get update
+    sudo apt-get install -y imagemagick
+
+else 
+    echo "ImageMagick installé sur l'appareil"
+fi
+echo ""
+
+}
 
 
 #--------------------------------------------------------------------
@@ -558,6 +651,7 @@ exit 0
 echo "---------------------------------------"$'\n'
 
 verif_arg "$@"
+verif_logiciel
 
 echo "---------------------------------------"$'\n'
 
@@ -577,7 +671,7 @@ folder_existence
 echo "---------------------------------------"$'\n'
 
 
-affich_arg "$@"
+affich_arg "${arguments_finaux[@]}"
 
 
 
@@ -585,22 +679,19 @@ echo "---------------------------------------"$'\n'
 
 
 
-
-
-for ((i=1; i<=$#; i++)); 
-do
-    if [ "${!i}" = "-h" ]; 
-    then       
-       echo "argument -h"$'\n'
-       show_help
-       echo "---------------------------------------"$'\n'
-       set -- "${@:1:i-1}" "${@:i+1:$#}"
-    break
+for arg in "${arguments_finaux[@]}"; do
+if [ "$arg" == "-h" ]; 
+       then
+	show_help
 fi
 done
 
 
-for arg in "$@"; do
+
+
+
+
+for arg in "${arguments_finaux[@]}"; do
 case "$arg" in
 	-d1)
 	  gnuplot_d1
@@ -628,9 +719,18 @@ case "$arg" in
 	 echo "---------------------------------------"$'\n'
 	 ;;
 	
+	
+	-bibliographie)
+	 show_bibliographie
+	 echo "---------------------------------------"$'\n'
+	 ;;
+	
+	-h)
+	;;
+	
 	*)
-         echo "Argument non reconnu: $arg"
-	 echo "Argument ignoré"$'\n'
+         echo "$arg : Argument non reconnu"
+	 echo "Fonctions de vérifications à régler"$'\n'
 	 echo "---------------------------------------"$'\n'
 	 ;;
 esac
@@ -638,6 +738,8 @@ done
 
 echo "---------------------------------------"$'\n'
 prog_exit
+
+
 
 
 
