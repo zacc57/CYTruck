@@ -55,9 +55,9 @@ folder_existence ()                      #Vérification existence dossier
 # fichier data : existence
 if [ -f "$data_root" ]; 
 then
-    echo "Le fichier data existe"$'\n'
+    echo "Le fichier <data.csv> dans dossier 'data'"$'\n'
 else
-    echo "Le fichier data n'existe pas"
+    echo "Fichier <data.csv> n'est pas dans le dossier 'data'"
     echo "Résolvez le problème"$'\n'
 fi
 
@@ -133,8 +133,8 @@ start_time=$(date +%s)
 
 #prendre colonne concernée, sort pour uniq (obligatoire)
 #tout fichier .txt ressortissant mis dans demo/
-cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c| sort -nr | head > demo/data_d1.dat
 
+cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk -F ';' '{printf "%s;%s%s\n", $1, $2, $3}' > demo/data_d1.dat
 
 gnuplot_tracage -d1
 
@@ -322,7 +322,7 @@ plot 'demo/data_d2.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
 EOF
 
-convert images/d2_${date}_${username}.png' -rotate 90 'images/d2_${date}_${username}.png
+convert images/d2_${date}_${username}.png -rotate 90 images/d2_${date}_${username}.png
 
 echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
 
@@ -603,8 +603,15 @@ exit 0
 
 show_bibliographie () 
 {
-echo "t"
-
+echo "Liste des sources pour le programme :"$'\n'
+echo "Pour les traitements Bash"
+echo "https://www.cyberciti.biz/faq/bash-scripting-using-awk/"
+echo "https://www.shellunix.com/awk.html"
+echo "https://www.it-connect.fr/trier-les-lignes-en-double-avec-la-commande-uniq-sous-linux/"$'\n'
+echo "Bash : gnuplot"
+echo "https://askubuntu.com/questions/701986/how-to-execute-commands-in-gnuplot-using-shell-script"
+echo "http://www.phyast.pitt.edu/~zov1/gnuplot/html/histogram.html"
+echo "http://gnuplot-tricks.blogspot.com/2009/10/turning-of-histogram.html"$'\n'
 }
 
 verif_logiciel () {
@@ -652,6 +659,7 @@ echo "---------------------------------------"$'\n'
 
 verif_arg "$@"
 verif_logiciel
+echo ""
 
 echo "---------------------------------------"$'\n'
 
@@ -683,6 +691,7 @@ for arg in "${arguments_finaux[@]}"; do
 if [ "$arg" == "-h" ]; 
        then
 	show_help
+	echo "---------------------------------------"$'\n'
 fi
 done
 
@@ -737,6 +746,8 @@ esac
 done
 
 echo "---------------------------------------"$'\n'
+
+echo "Fin d'execution du programme"
 prog_exit
 
 
