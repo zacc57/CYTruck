@@ -3,7 +3,7 @@
 
 
 ## Utilisation  
-bash main.sh <arg1> ... <arg7>  
+bash main.sh arg1 ... arg7   
 *les arguments sont tels que :*.
 ** -d1 ; -d2 ; -l ; -t ; -s ; -h  bibliographie  
  -d1 : _traitement d1_  
@@ -18,10 +18,12 @@ bash main.sh <arg1> ... <arg7>
     -chaine alphanumériques  
     -entre 1 et 25 caractères  
     permet de nommer avec plus de personnalisation  
-    le nom des graphiques gnuplot au format pdf***  
+    le nom des graphiques gnuplot au format pdf***   
 
-
-
+ >Le programme fera le reste tout seul,  
+>les graphiques sont à ouvrir manuellement
+>dans le fichier images :  
+>ils auront pour nom : pseudo + date de création
 
 
 
