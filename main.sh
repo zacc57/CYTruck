@@ -31,19 +31,29 @@ data_root="$root/$data_folder/$data_file"
 temp_root="$root/$temp_folder"
 demo_root="$root/$demo_folder"
 images_root="$root/$images_folder"
+progc_root="$root/$progc_folder"
 
 
 
 
 
+excc_filec ()                       
+{
 
-excc_filec ()                       #vérifier l'existence et la compilation
-{                                   #de l'executable C
-
-make -C $root/$progc_folder
-echo "test"
-
+if [[ -f "$progc_root/Ttraitement.c" && -f "$progc_root/Straitement.c" ]];
+then
+compiler_c
+else
+echo "Problèmes de fichiers dans le dossier 'progc'"
+fi
 }
+
+
+compiler_c () 
+{
+gcc -c -Ttraitement.c -Straitement.c
+}
+
 
 
 
@@ -55,9 +65,9 @@ folder_existence ()                      #Vérification existence dossier
 # fichier data : existence
 if [ -f "$data_root" ]; 
 then
-    echo "Le fichier <data.csv> dans dossier 'data'"$'\n'
+    echo "Présence du <data.csv> dans dossier le 'data'"$'\n'
 else
-    echo "Fichier <data.csv> n'est pas dans le dossier 'data'"
+    echo "Le fichier <data.csv> n'est pas dans le dossier 'data'"
     echo "Résolvez le problème"$'\n'
 fi
 
@@ -97,12 +107,6 @@ else
 fi
 
 
-
-# progc : présence intégralité fichiers nécessaires
-
-
-
-
 }
 
 
@@ -134,7 +138,7 @@ start_time=$(date +%s)
 #prendre colonne concernée, sort pour uniq (obligatoire)
 #tout fichier .txt ressortissant mis dans demo/
 
-cut -d ';' -f1,6 "$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk -F ';' '{printf "%s;%s%s\n", $1, $2, $3}' > demo/data_d1.dat
+cut -d ';' -f1,6 "data/$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk '{print $1 ";" $2, $3}'  > demo/data_d1.dat
 
 gnuplot_tracage -d1
 
@@ -157,7 +161,7 @@ echo "Traitement d2 en cours"
 start_time=$(date +%s)
 
 #awk créer colonne et boucle for dedans pour calcul
-cut -d ";" -f5,6 "$data_file" | awk -F ";" '{noms[$2]++;distances[$2]+=$1} END {for (i in noms) print i ";" distances[i]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
+cut -d ";" -f5,6 "data/$data_file" | awk -F ';' ' {somme[$2] += $1} END {for (nom in somme) printf "%s; %.5f\n", nom, somme[nom]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
 
 gnuplot_tracage -d2
 
@@ -183,7 +187,7 @@ echo "Traitement l en cours"
 start_time=$(date +%s)
 
 #pareil précedemment, mais colonnes prises différentes
-cut -d ';' -f1,5 "$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
+cut -d ';' -f1,5 "data/$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
 
 
 
@@ -191,7 +195,6 @@ gnuplot_tracage -l
 
 
 end_time=$(date +%s)
-eog images/l_${date}_${username}.png
 echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
 }
@@ -276,13 +279,15 @@ set ytics right
 set xtics rotate by 90
 set ytics rotate by 90
 
+set xtics offset 0,-9
+set bmargin 10
 
 set boxwidth 0.8 relative
 set yrange [0:250]
 set style line 1 lc rgb '#c79fef' lt 1 lw 2
 set style fill solid noborder
 
-plot 'demo/data_d1.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
+plot 'demo/data_d1.dat' using 1:xtic(2)  with boxes linestyle 1 notitle
 
 EOF
 
@@ -311,6 +316,9 @@ set y2label "DISTANCE (km)"
 
 set xtics rotate by 90
 set ytics rotate by 90
+
+set xtics offset 0,-9
+set bmargin 10
 
 
 set boxwidth 0.8 relative
@@ -415,9 +423,10 @@ echo 'Tracage enregistré sous : 'images/t_${date}_${username}.png' '
 echo "Tracage en cours : -s"
 
         
+
 gnuplot << EOF
 
-set terminal pngcairo enhanced font 'Arial,12' size 1200,800
+set terminal pngcairo enhanced font 'Arial,12' size 1500,1200
 set output 'images/s_${date}_${username}.png'
 set datafile separator ";"
 
@@ -429,11 +438,14 @@ set xlabel "ROUTE ID"
 set ylabel "DISTANCE (Km)" 
 
 set yrange [0:1000]
+set xtics rotate by 45 offset 0, -2
+set bmargin 4
 
-plot 'demo/data_s.dat' using 1:3:5 with filledcurves closed lc rgb "blue" title 'Distances Max/min (Km)' ,\
-'demo/data_s.dat' using 1:4 with lines lc rgb "purple" lw 2 title 'Distance Average (Km)'
 
-
+plot 'demo/data_s.dat' using 1:4:xtic(2) with lines lc rgb "purple" lw 2 title 'Distance Average (Km)', \
+     'demo/data_s.dat' using 1:5 with lines lc rgb "blue" lw 2 title 'Distance Max/Min (Km)', \
+     'demo/data_s.dat' using 1:3 with lines lc rgb "blue" lw 2 notitle, \
+     'demo/data_s.dat' using 1:3:5 with filledcurves lc "skyblue" fs transparent solid 0.5 notitle
 EOF
 
 echo 'Tracage enregistré sous : 'images/s_${date}_${username}.png' '
@@ -461,14 +473,15 @@ echo 'Tracage enregistré sous : 'images/s_${date}_${username}.png' '
 show_help() 
 {
 
-echo "Usage: bash main.sh <arg1> <arg2> <arg3> <arg4> <arg5> <arg6>"$'\n'
-echo "Arguments :"$'\n'
+echo "Usage: bash main.sh <arg1> <arg2> <arg3> <arg4> <arg5> <arg6> <arg7>"$'\n'
+echo "Liste des arguments disponibles :"$'\n'
 echo "option -d1 : Conducteurs avec le plus de trajets "$'\n'
-echo "option -d2 : Conducteurs et la plus grande distance: "$'\n'
+echo "option -d2 : Conducteurs et la plus grande distance "$'\n'
 echo "option -l : Les 10 trajets les plus longs "$'\n'
-echo "option -t :Les 10 villes les plus traversées "$'\n'
+echo "option -t : Les 10 villes les plus traversées "$'\n'
 echo "option -s : Statistiques sur les étapes "$'\n'
-echo "option -h : afficher l'aide"$'\n'
+echo "option -h : Afficher l'aide"$'\n'
+echo "option -bibliographie : Aides à la création du projet sourcées"$'\n'
 
 return 1
 
@@ -491,7 +504,9 @@ if [ "$#" -ne 1 ];
  then
         echo "Usage: username_check <nom>"
         echo "1 seul nom requis"
-	exit 1
+	read -p "Entrez un nom d'utilisateur : " username
+        username_check "$username"
+	return 0
 fi
 
 username="$1"
@@ -499,7 +514,9 @@ username="$1"
 if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; 
 then
     echo "Erreur : le nom doit être une chaine de caractères sans espace"
-    return 1
+    read -p "Entrez un nom d'utilisateur : " username
+    username_check "$username"
+    return 0
 fi
 
 length=${#username}
@@ -507,7 +524,9 @@ length=${#username}
 if ((length < 1 || length > 25)); 
 then
   echo "Erreur : le nom doit faire entre 1 et 25 caractères"
-  return 1
+  read -p "Entrez un nom d'utilisateur : " username
+  username_check "$username"
+  return 0
 fi
 
 return 0
@@ -586,7 +605,7 @@ echo ""
 prog_exit () 
 {
 
-for ((i = 1; i <= 20; i++)); 
+for ((i = 1; i <= 10; i++)); 
 do
 	echo $i
 	sleep 1
@@ -608,10 +627,14 @@ echo "Pour les traitements Bash"
 echo "https://www.cyberciti.biz/faq/bash-scripting-using-awk/"
 echo "https://www.shellunix.com/awk.html"
 echo "https://www.it-connect.fr/trier-les-lignes-en-double-avec-la-commande-uniq-sous-linux/"$'\n'
+echo "https://forum.ubuntu-fr.org/viewtopic.php?id=2036531"
 echo "Bash : gnuplot"
 echo "https://askubuntu.com/questions/701986/how-to-execute-commands-in-gnuplot-using-shell-script"
 echo "http://www.phyast.pitt.edu/~zov1/gnuplot/html/histogram.html"
 echo "http://gnuplot-tricks.blogspot.com/2009/10/turning-of-histogram.html"$'\n'
+echo "Pour la partie C :"
+echo "https://koor.fr/C/cstdlib/qsort.wp"
+echo ""
 }
 
 verif_logiciel () {
@@ -622,7 +645,9 @@ verif_logiciel () {
 if ! command -v gnuplot &> /dev/null; 
 then
         echo "Gnuplot non installé"
-        exit 1
+        # Installation sur un système basé sur Debian
+        sudo apt-get update
+        sudo apt-get install gnuplot        
 else 
    echo "Gnuplot installé sur l'appareil"
 fi
@@ -631,7 +656,7 @@ fi
 #vérification présence ImageMagick sur appareil, 
 #sinon installation
 if ! command -v convert &> /dev/null; then
-    echo "ImageMagick n'est pas installé" 
+    echo "ImageMagick non installé" 
     echo "Installation en cours"
 
     # Installation sur un système basé sur Debian
@@ -665,11 +690,12 @@ echo "---------------------------------------"$'\n'
 
 read -p "Entrez un nom d'utilisateur : " username
 username_check "$username"
+echo ""
 
 echo "---------------------------------------"$'\n'
 
-echo "Vérification de la présence des outils nécessaires"
-echo "au bon fonctionnement du programme"$'\n'
+echo "Vérification de la présence des outils nécessaires"$'\n'
+echo "au bon fonctionnement du programme :"$'\n'
 
 echo "---------------------------------------"$'\n'
 
@@ -749,9 +775,4 @@ echo "---------------------------------------"$'\n'
 
 echo "Fin d'execution du programme"
 prog_exit
-
-
-
-
-
 
