@@ -385,29 +385,36 @@ echo "Tracage en cours : -t"
            
 gnuplot << EOF
 
+gnuplot << EOF
+
 set terminal pngcairo enhanced font 'Arial,12' size 1200,800
-set output 'images/t_${date}_${username}.png'
+set output "images/t_${date}_${username}.png"
 set datafile separator ";"
 
-set style data histograms
-set style fill solid border -1
+set style data histogram
+#set style fill solid border -1
+set style histogram cluster gap 1
+set style fill solid 
+set grid ytics
 
 set title "option -t : Nb routes = f(Towns)" 
 set xlabel "TOWN NAMES" 
 set ylabel "NB ROUTES" 
 
-set boxwidth 0.5 relative
+
+
+set boxwidth 1.5
 set yrange [0:3500]
+
 
 set style line 1 lc rgb '#87CEEB' lt 1 lw 2
 set style line 2 lc rgb '#4169E1' lt 1 lw 2
-set style fill solid noborder
 
-plot 'demo/data_t.dat' using 2:xtic(1)  with boxes linestyle 1 title 'Total routes', \
-     'demo/data_t.dat' using 3:xtic(1)  with boxes linestyle 2 title 'First Town'
-
+plot 'demo/data_t.dat' using 2:xtic(1)  title 'Total routes' ,  \
+    'demo/data_t.dat' using 3  title 'First Town'
 
 EOF
+
 
 echo 'Tracage enregistré sous : 'images/t_${date}_${username}.png' '
   
@@ -511,8 +518,8 @@ fi
 
 username="$1"
 
-if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; 
-then
+if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; #=~ ^[[:alnum:]_]+$ : par chat-openai
+then                                            #verifier si présence seulement caractères alphanumériques
     echo "Erreur : le nom doit être une chaine de caractères sans espace"
     read -p "Entrez un nom d'utilisateur : " username
     username_check "$username"
@@ -642,7 +649,7 @@ verif_logiciel () {
 
 #vérification présence gnuplot sur appareil
 #sinon installation
-if ! command -v gnuplot &> /dev/null; 
+if ! command -v gnuplot &> /dev/null; #teste si gnuplot
 then
         echo "Gnuplot non installé"
         # Installation sur un système basé sur Debian
@@ -655,8 +662,8 @@ fi
 
 #vérification présence ImageMagick sur appareil, 
 #sinon installation
-if ! command -v convert &> /dev/null; then
-    echo "ImageMagick non installé" 
+if ! command -v convert &> /dev/null; then #teste si commande convert presence
+    echo "ImageMagick non installé"        
     echo "Installation en cours"
 
     # Installation sur un système basé sur Debian
@@ -775,4 +782,5 @@ echo "---------------------------------------"$'\n'
 
 echo "Fin d'execution du programme"
 prog_exit
+
 
