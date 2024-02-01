@@ -7,9 +7,12 @@
 ***Présence nécessaire du fichier 'data.csv'
    dans un dossier 'data', dossier au même
    niveau d'arborescence que le fichier 'main.sh'***
+>voir sur les captures d'ecran du doossier demo  
+>'emplacement_dossier_data.png'  
+>'emplacement_fichier_data.png'  
 
 bash main.sh arg1 ... arg7   
-*les arguments sont tels que :  
+*les arguments sont tels que :*    
 ** -d1 ; -d2 ; -l ; -t ; -s ; -h ; -bibliographie ;  
  -d1 : _traitement d1_  
  -d2 : _traitement d2_  
