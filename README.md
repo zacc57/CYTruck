@@ -5,7 +5,7 @@
 ## Utilisation  
 
 ***Présence nécessaire du fichier 'data.csv'
-   dans un dossier data.csv, dossier dans au même
+   dans un dossier 'data', dossier au même
    niveau d'arborescence que le fichier 'main.sh'***
 
 bash main.sh arg1 ... arg7   
