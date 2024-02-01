@@ -1,5 +1,9 @@
 #!/bin/bash
 
+export LC_NUMERIC="en_US.UTF-8" #permet nombre flottant avec awk 
+                                #compatibilité fichier csv
+
+
 
 #plus de visibilité sur le termial de commande
 clear
@@ -13,34 +17,35 @@ clear
 
 
 
-root=$(dirname "$0")  #fichier parent du programme
+racine=$(dirname "$0")  #fichier parent du programme
 
 
-temp_folder="temp"          #liste dossiers et fichiers
-images_folder="images"      #nécessaires au programme
-data_folder="data"
-demo_folder="demo"
-progc_folder="progc"
+temp_dossier="temp"          #liste dossiers et fichiers
+images_dossier="images"      #nécessaires au programme
+data_dossier="data"
+demo_dossier="demo"
+progc_dossier="progc"
 
-data_file="data.csv" 
+data_fichier="data.csv" 
 
 
 #chemin vers les dossiers/ficiers à vérifier
-temp_root="$root/$temp_folder"
-data_root="$root/$data_folder/$data_file"
-temp_root="$root/$temp_folder"
-demo_root="$root/$demo_folder"
-images_root="$root/$images_folder"
-progc_root="$root/$progc_folder"
+temp_chemin="$racine/$temp_dossier"
+data_chemin="$racine/$data_dossier/$data_fichier"
+temp_chemin="$racine/$temp_dossier"
+demo_chemin="$racine/$demo_dossier"
+images_chemin="$racine/$images_dossier"
+progc_chemin="$racine/$progc_dossier"
 
 
 
 
-
-excc_filec ()                       
+#vérifie l'ensemble des fichiers du programme c
+#et compile si besoin
+fichiersC_existence ()                       
 {
 
-if [[ -f "$progc_root/Ttraitement.c" && -f "$progc_root/Straitement.c" ]];
+if [[ -f "$progc_racine/Ttraitement.c" && -f "$progc_racine/Straitement.c" ]];
 then
 compiler_c
 else
@@ -48,7 +53,7 @@ echo "Problèmes de fichiers dans le dossier 'progc'"
 fi
 }
 
-
+#compilation c
 compiler_c () 
 {
 gcc -c -Ttraitement.c -Straitement.c
@@ -58,12 +63,12 @@ gcc -c -Ttraitement.c -Straitement.c
 
 
 
-folder_existence ()                      #Vérification existence dossier
+dossiers_existence ()                      #Vérification existence dossier
 {
 
 
 # fichier data : existence
-if [ -f "$data_root" ]; 
+if [ -f "$data_chemin" ]; 
 then
     echo "Présence du <data.csv> dans dossier le 'data'"$'\n'
 else
@@ -73,7 +78,7 @@ fi
 
 
 # dossier images : si n'existe pas, création
-if [ ! -d "$images_root" ];
+if [ ! -d "$images_chemin" ];
  then
     mkdir "$images_folder"
     echo "Le dossier $images_folder est créé"$'\n'
@@ -84,7 +89,7 @@ fi
 
 
 # dossier demo : si n'existe pas, création
-if [ ! -d "$demo_root" ];
+if [ ! -d "$demo_chemin" ];
  then
     mkdir "$demo_folder"
     echo "Le dossier $demo_folder est créé"$'\n'
@@ -96,14 +101,14 @@ fi
 
 
 # dossier temp : le créer ou le vider
-if [ ! -d "$temp_root" ]; 
+if [ ! -d "$temp_chemin" ]; 
 then
-    mkdir "$temp_folder"
-    echo "Le dossier $temp_folder est créé"$'\n'
+    mkdir "$temp_dossier"
+    echo "Le dossier $temp_dossier est créé"$'\n'
 else
-  echo "Dossier $temp_folder en nettoyage"
-  rm -rf "$temp_folder"/*
-  echo "Dossier $temp_folder vidé"$'\n'
+  echo "Dossier $temp_dossier en nettoyage"
+  rm -rf "$temp_dossier"/*   #suppresion recursive
+  echo "Dossier $temp_dossier vidé"$'\n'
 fi
 
 
@@ -128,22 +133,21 @@ fi
 gnuplot_d1() 
 {
 
-#mise en place timer + sortie image
+#mise en place minuteur + sortie image
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/d1_${date}_${username}.png"
- 
+
 echo "Traitement d1 en cours"
-start_time=$(date +%s)
+debut_temps=$(date +%s)
 
 #prendre colonne concernée, sort pour uniq (obligatoire)
 #tout fichier .txt ressortissant mis dans demo/
 
-cut -d ';' -f1,6 "data/$data_file" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk '{print $1 ";" $2, $3}'  > demo/data_d1.dat
+cut -d ';' -f1,6 "data/$data_fichier" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk '{print $1 ";" $2, $3}'  > demo/data_d1.dat
 
 gnuplot_tracage -d1
 
-end_time=$(date +%s)
-echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
+fin_temps=$(date +%s)
+echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
 
 }
@@ -152,22 +156,20 @@ echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
 gnuplot_d2() 
 {
-
+#pareil que d1
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/d2_${date}_${username}.png"
-
 
 echo "Traitement d2 en cours"
-start_time=$(date +%s)
+debuy_temps=$(date +%s)
 
 #awk créer colonne et boucle for dedans pour calcul
-cut -d ";" -f5,6 "data/$data_file" | awk -F ';' ' {somme[$2] += $1} END {for (nom in somme) printf "%s; %.5f\n", nom, somme[nom]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
+cut -d ";" -f5,6 "data/$data_fichier" | awk -F ';' ' {somme[$2] += $1} END {for (nom in somme) printf "%s; %.5f\n", nom, somme[nom]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
 
 gnuplot_tracage -d2
 
 
-end_time=$(date +%s)
-echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
+fin_temps=$(date +%s)
+echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
 
 }
@@ -179,23 +181,21 @@ echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 gnuplot_l() 
 {
 
-
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/l_${date}_${username}.png"
 
 echo "Traitement l en cours"
-start_time=$(date +%s)
+debut_temps=$(date +%s)
 
 #pareil précedemment, mais colonnes prises différentes
-cut -d ';' -f1,5 "data/$data_file" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
+cut -d ';' -f1,5 "data/$data_fichier" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
 
 
 
 gnuplot_tracage -l
 
 
-end_time=$(date +%s)
-echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
+fin_temps=$(date +%s)
+echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
 }
 
@@ -203,19 +203,16 @@ echo "Temps d'execution : $(($end_time - $start_time)) seconde.s"$'\n'
 
 gnuplot_t ()
 {
-
+#idem
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/t_${date}_${username}.png"
-
-
 
 echo "Traitement t en cours"
-start_time=$(date +%s)
+debut_temps=$(date +%s)
 
 gnuplot_tracage -t
 
-end_time=$(date +%s)
-echo "Temps d'execution : ($end_time - $start_time) seconde.s "
+fin_temps=$(date +%s)
+echo "Temps d'execution : ($efin_temps - $debut_temps) seconde.s "
 
 
 }
@@ -224,18 +221,17 @@ echo "Temps d'execution : ($end_time - $start_time) seconde.s "
 
 gnuplot_s ()
 {
-
+#idem
 date=$(date +"%H-%M-%Y-%S")
-output_png="images/s_${date}_${username}.png"
 
 
 echo "Traitement s en cours"
-start_time=$(date +%s)
+debut_temps=$(date +%s)
 
 gnuplot_tracage -s
 
-end_time=$(date +%s)
-echo "Temps d'execution : ($end_time - $start_time) seconde.s "
+fin_temps=$(date +%s)
+echo "Temps d'execution : ($fin_temps - $debut_temps) seconde.s "
 
 
 }
@@ -262,10 +258,12 @@ case "$1" in
 
 echo "Tracage en cours : -d1"
 
+#convert necessaire pour rotation 90 (pasq natif gnuplot)
+#histogramme simple sans problemes
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1200,1200
-set output 'images/d1_${date}_${username}.png'
+set output 'images/d1_${date}_${nom}.png'
 set datafile separator ";"
 
 set style data histograms
@@ -291,20 +289,20 @@ plot 'demo/data_d1.dat' using 1:xtic(2)  with boxes linestyle 1 notitle
 
 EOF
 
-convert images/d1_${date}_${username}.png -rotate 90 images/d1_${date}_${username}.png
+convert images/d1_${date}_${nom}.png -rotate 90 images/d1_${date}_${nom}.png
 
-echo 'Tracage enregistré sous : 'images/d1_${date}_${username}.png' '
+echo 'Tracage enregistré sous : 'images/d1_${date}_${nom}.png' '
      ;;
    
    
         -d2)
-
+#idem d1
 echo "Tracage en cours : -d2"
 
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1200,1200
-set output 'images/d2_${date}_${username}.png'
+set output 'images/d2_${date}_${nom}.png'
 set datafile separator ";"
 
 set style data histograms
@@ -330,9 +328,9 @@ plot 'demo/data_d2.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
 EOF
 
-convert images/d2_${date}_${username}.png -rotate 90 images/d2_${date}_${username}.png
+convert images/d2_${date}_${nom}.png -rotate 90 images/d2_${date}_${nom}.png
 
-echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
+echo 'Tracage enregistré sous : 'images/d2_${date}_${nom}.png' '
 
      ;;      
        
@@ -340,11 +338,11 @@ echo 'Tracage enregistré sous : 'images/d2_${date}_${username}.png' '
        -l)
 
 echo "Tracage en cours : l"
-
+#trivial
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1000,800
-set output 'images/l_${date}_${username}.png'
+set output 'images/l_${date}_${nom}.png'
 set datafile separator ";"
 
 set style data histograms
@@ -364,7 +362,7 @@ plot 'demo/data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 EOF
 
 
-echo 'Tracage enregistré sous : 'images/l_${date}_${username}.png' '
+echo 'Tracage enregistré sous : 'images/l_${date}_${nom}.png' '
   
      
      ;;
@@ -382,13 +380,13 @@ echo 'Tracage enregistré sous : 'images/l_${date}_${username}.png' '
         -t)
 
 echo "Tracage en cours : -t"
-           
-gnuplot << EOF
+# 'histogram cluster' necessaire
+#pour afficher deux colonnes espacées
 
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1200,800
-set output "images/t_${date}_${username}.png"
+set output "images/t_${date}_${nom}.png"
 set datafile separator ";"
 
 set style data histogram
@@ -416,7 +414,7 @@ plot 'demo/data_t.dat' using 2:xtic(1)  title 'Total routes' ,  \
 EOF
 
 
-echo 'Tracage enregistré sous : 'images/t_${date}_${username}.png' '
+echo 'Tracage enregistré sous : 'images/t_${date}_${nom}.png' '
   
 
            
@@ -428,13 +426,16 @@ echo 'Tracage enregistré sous : 'images/t_${date}_${username}.png' '
         -s)
 
 echo "Tracage en cours : -s"
-
+#tracer les lignes max, min, moyenne,
+#faire 'filledcurves' entre max et min
+#abscisse plot par rapport à suite nombres
+#et non valeurs mis en abscisse (routeId)
         
 
 gnuplot << EOF
 
 set terminal pngcairo enhanced font 'Arial,12' size 1500,1200
-set output 'images/s_${date}_${username}.png'
+set output 'images/s_${date}_${nom}.png'
 set datafile separator ";"
 
 set style data histograms
@@ -455,13 +456,13 @@ plot 'demo/data_s.dat' using 1:4:xtic(2) with lines lc rgb "purple" lw 2 title '
      'demo/data_s.dat' using 1:3:5 with filledcurves lc "skyblue" fs transparent solid 0.5 notitle
 EOF
 
-echo 'Tracage enregistré sous : 'images/s_${date}_${username}.png' '
+echo 'Tracage enregistré sous : 'images/s_${date}_${nom}.png' '
   
         
         ;;
         *)
-            echo " Argument non valide : $1"
-            show_help 
+            echo "Argument non valide : $1"
+            montrer_aide
 	    ;;
     esac
 
@@ -476,8 +477,8 @@ echo 'Tracage enregistré sous : 'images/s_${date}_${username}.png' '
 
 
 
-
-show_help() 
+#explication du programme
+montrer_aide() 
 {
 
 echo "Usage: bash main.sh <arg1> <arg2> <arg3> <arg4> <arg5> <arg6> <arg7>"$'\n'
@@ -498,7 +499,7 @@ return 1
 
 
 
-username_check() 
+verif_nom() 
 {
 
 #pseudo de [1;25] caractères
@@ -509,30 +510,30 @@ username_check()
 
 if [ "$#" -ne 1 ]; 
  then
-        echo "Usage: username_check <nom>"
+        echo "Usage: verif_nom <nom>"
         echo "1 seul nom requis"
-	read -p "Entrez un nom d'utilisateur : " username
-        username_check "$username"
+	read -p "Entrez un nom d'utilisateur : " nom
+        verif_nom "$nom"
 	return 0
 fi
 
-username="$1"
+nom="$1"
 
-if [[ -z "$username" || ! "$username" =~ ^[[:alnum:]_]+$ ]]; #=~ ^[[:alnum:]_]+$ : par chat-openai
+if [[ -z "$nom" || ! "$nom" =~ ^[[:alnum:]_]+$ ]]; #=~ ^[[:alnum:]_]+$ : par chat-openai
 then                                            #verifier si présence seulement caractères alphanumériques
     echo "Erreur : le nom doit être une chaine de caractères sans espace"
-    read -p "Entrez un nom d'utilisateur : " username
-    username_check "$username"
+    read -p "Entrez un nom d'utilisateur : " nom
+    verif_nom "$nom"
     return 0
 fi
 
-length=${#username}
+longueur=${#nom}
 
-if ((length < 1 || length > 25)); 
+if ((longueur < 1 || longueur > 25)); 
 then
   echo "Erreur : le nom doit faire entre 1 et 25 caractères"
-  read -p "Entrez un nom d'utilisateur : " username
-  username_check "$username"
+  read -p "Entrez un nom d'utilisateur : " nom
+  verif_nom "$nom"
   return 0
 fi
 
@@ -558,24 +559,24 @@ arguments_finaux=()
 #chaque argument peut être mis une fois
 #soit un total de 6 disponibles
 
-#si 0 argument rentré : exit
+#si 0 argument rentré : sortie
 if  [ "$#" -eq 0 ]; 
 then
     echo "Aucun argument spécifié"$'\n'
-    show_help
-    prog_exit
+    montrer_aide
+    prog_quitter
     exit 1
 
-#si plus de 7 arguments rentrés : exit
+#si plus de 7 arguments rentrés : sortie
 elif [ "$#" -gt 7 ]; 
 then
     echo "Erreur: nombre d'arguments incorrect"$'\n'
-    show_help
-    prog_exit
+    montrer_aide
+    prog_quitter
     exit 1
 fi
 
-
+#boucle pour filtrer arguments
 for arg in "$@"; 
 do
 for valid_arg in "${prog_arguments[@]}"; 
@@ -609,7 +610,7 @@ echo ""
 #compteur de 10 secondes
 #avant fermeture programme
 
-prog_exit () 
+prog_quitter() 
 {
 
 for ((i = 1; i <= 10; i++)); 
@@ -627,7 +628,7 @@ exit 0
 
 
 
-show_bibliographie () 
+montrer_bibliographie () 
 {
 echo "Liste des sources pour le programme :"$'\n'
 echo "Pour les traitements Bash"
@@ -635,6 +636,7 @@ echo "https://www.cyberciti.biz/faq/bash-scripting-using-awk/"
 echo "https://www.shellunix.com/awk.html"
 echo "https://www.it-connect.fr/trier-les-lignes-en-double-avec-la-commande-uniq-sous-linux/"$'\n'
 echo "https://forum.ubuntu-fr.org/viewtopic.php?id=2036531"
+echo "https://askubuntu.com/questions/724338/how-to-set-lc-numeric-to-english-permanently"
 echo "Bash : gnuplot"
 echo "https://askubuntu.com/questions/701986/how-to-execute-commands-in-gnuplot-using-shell-script"
 echo "http://www.phyast.pitt.edu/~zov1/gnuplot/html/histogram.html"
@@ -695,8 +697,8 @@ echo ""
 
 echo "---------------------------------------"$'\n'
 
-read -p "Entrez un nom d'utilisateur : " username
-username_check "$username"
+read -p "Entrez un nom d'utilisateur : " nom
+verif_nom "$nom"
 echo ""
 
 echo "---------------------------------------"$'\n'
@@ -706,8 +708,8 @@ echo "au bon fonctionnement du programme :"$'\n'
 
 echo "---------------------------------------"$'\n'
 
-excc_filec  
-folder_existence
+fichiersC_existence 
+dossiers_existence
 
 echo "---------------------------------------"$'\n'
 
@@ -763,7 +765,7 @@ case "$arg" in
 	
 	
 	-bibliographie)
-	 show_bibliographie
+	 montrer_bibliographie
 	 echo "---------------------------------------"$'\n'
 	 ;;
 	
@@ -781,6 +783,6 @@ done
 echo "---------------------------------------"$'\n'
 
 echo "Fin d'execution du programme"
-prog_exit
+prog_quitter
 
 
