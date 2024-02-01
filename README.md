@@ -3,9 +3,14 @@
 
 
 ## Utilisation  
+
+***Présence nécessaire du fichier 'data.csv'
+   dans un dossier data.csv, dossier dans au même
+   niveau d'arborescence que le fichier 'main.sh'***
+
 bash main.sh arg1 ... arg7   
-*les arguments sont tels que :*.
-** -d1 ; -d2 ; -l ; -t ; -s ; -h  bibliographie  
+*les arguments sont tels que :  
+** -d1 ; -d2 ; -l ; -t ; -s ; -h ; -bibliographie ;  
  -d1 : _traitement d1_  
  -d2 : _traitement d2_  
   -l : _traitement l_  
