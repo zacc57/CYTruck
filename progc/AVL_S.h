@@ -1,5 +1,5 @@
-#ifndef FONCTIONSAVLC_H
-#define FOONCTIONSAVLC_H
+#ifndef AVLS_FONCTIONS
+#define AVLS_FONCTIONS
 
 AVL* rotationDroite(AVL* noeud)
 
