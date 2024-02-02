@@ -196,7 +196,8 @@ int main(){
       size_t len=0;
       ssize_t read;
       FILE* FD= fopen("data/data.csv", "r");
-      if (FD==NULL){
+      FILE* sortieFD = fopen("temp/data_t.dat", "w");
+      if (FD==NULL || sortieFD==NULL ){
           exit(1);
       }
       while ((read = getline(&line, &len, FD)) != -1) {
@@ -212,7 +213,10 @@ int main(){
           char* ville=strline;
           element1=insertElementAVL1(element1,ville,0);
       }
-      element2=creationABR2(element1,element2);
+      
+     fclose(sortieFD);
+    fclose(FD)
+     element2=creationABR2(element1,element2);
       element2=transformationAVL(element2);
       Affichage(element2);
       FreeAVL(element1);
