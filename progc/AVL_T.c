@@ -34,7 +34,7 @@ AVL* NewAVL1(char* ville, short  depart){
 }
 
 AVL* NewAVL2(AVL* element){
-    AVL* pNew=malloc(sizeof(AVL)); //possible remplacement par stlern
+    AVL* pNew=malloc(sizeof(AVL));
     if (pNew==NULL){
       exit(1);
     }
