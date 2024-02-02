@@ -171,7 +171,7 @@ AVL* transformationAVL(AVL* element){
 
 
 
-void Affichage(AVL* element){ //affiche et supprime le dernier élément
+void Affichage(AVL* element){ //affiche par ordre décroissant
       if(element==NULL){
           return;
       }
