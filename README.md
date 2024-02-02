@@ -3,11 +3,14 @@
 ## Compilation
   
 ***commande pour lancer le programme :  
-bash main.sh***  
+bash main.sh 'liste des arguments'***    
 >se mettre à l'emplacement où se
 >trouve le fichier main (voir capture d'écran
 >utilisation ci-dessous)  
-  
+>voir 'exemple_execution.png
+>dans le dossier demo  
+
+
 ## Utilisation  
   
 ***Présence nécessaire du fichier 'data.csv'
