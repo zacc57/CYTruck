@@ -39,24 +39,23 @@ progc_chemin="$racine/$progc_dossier"
 
 
 
-
 #vérifie l'ensemble des fichiers du programme c
 #et compile si besoin
-fichiersC_existence ()                       
-{
-
-if [[ -f "$progc_racine/Ttraitement.c" && -f "$progc_racine/Straitement.c" ]];
-then
-compiler_c
+fichiersC_existence () {
+if [ -f "$racine/progc/AVL_T.c" ] && [ -f "$racine/progc/AVL_S.c" ] && [ -f "$racine/progc/Makefile" ] && [ -f "$racine/progc/AVL_T.h" ] && [ -f "$racine/progc/AVL_S.h" ] && [ -f "$racine/progc/main.c" ]; then
+	echo "Dossier 'progc' complet"
+	echo ""
+	compiler_c
 else
-echo "Problèmes de fichiers dans le dossier 'progc'"
+	echo "Problèmes de fichiers dans le dossier 'progc'"
+	return 0
 fi
 }
 
 #compilation c
 compiler_c () 
 {
-gcc -c -Ttraitement.c -Straitement.c
+	make -C "$progc_chemin"
 }
 
 
@@ -65,8 +64,6 @@ gcc -c -Ttraitement.c -Straitement.c
 
 dossiers_existence ()                      #Vérification existence dossier
 {
-
-
 # fichier data : existence
 if [ -f "$data_chemin" ]; 
 then
@@ -74,44 +71,40 @@ then
 else
     echo "Le fichier <data.csv> n'est pas dans le dossier 'data'"
     echo "Résolvez le problème"$'\n'
+    prog_quitter
 fi
 
 
 # dossier images : si n'existe pas, création
-if [ ! -d "$images_chemin" ];
- then
-    mkdir "$images_folder"
-    echo "Le dossier $images_folder est créé"$'\n'
+if [ ! -d "$images_chemin" ]; then
+    mkdir "$images_dossier"
+    echo "Le dossier $images_dossier est créé"$'\n'
 else
-   echo "Dossier $images_folder opérationnel"$'\n'
+    echo "Dossier $images_dossier opérationnel"$'\n'
 fi
 
 
 
 # dossier demo : si n'existe pas, création
-if [ ! -d "$demo_chemin" ];
- then
-    mkdir "$demo_folder"
-    echo "Le dossier $demo_folder est créé"$'\n'
+if [ ! -d "$demo_chemin" ]; then
+    mkdir "$demo_dossier"
+    echo "Le dossier $demo_dossier est créé"$'\n'
 else
-   echo "Dossier $demo_folder opérationnel"$'\n'
+    echo "Dossier $demo_dossier opérationnel"$'\n'
 fi
 
 
 
 
 # dossier temp : le créer ou le vider
-if [ ! -d "$temp_chemin" ]; 
-then
+if [ ! -d "$temp_chemin" ]; then
     mkdir "$temp_dossier"
     echo "Le dossier $temp_dossier est créé"$'\n'
 else
-  echo "Dossier $temp_dossier en nettoyage"
-  rm -rf "$temp_dossier"/*   #suppresion recursive
-  echo "Dossier $temp_dossier vidé"$'\n'
+    echo "Dossier $temp_dossier en nettoyage"
+    rm -rf "$temp_dossier"/*   #suppresion recursive
+    echo "Dossier $temp_dossier vidé"$'\n'
 fi
-
-
 }
 
 
@@ -122,10 +115,6 @@ fi
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
 #                       TRAITEMENTS GNUPLOT
-
-
-
-
 
 
 
@@ -142,14 +131,14 @@ debut_temps=$(date +%s)
 #prendre colonne concernée, sort pour uniq (obligatoire)
 #tout fichier .txt ressortissant mis dans demo/
 
-cut -d ';' -f1,6 "data/$data_fichier" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk '{print $1 ";" $2, $3}'  > demo/data_d1.dat
+cut -d ';' -f1,6 "data/$data_fichier" | sort -t ';' -k1,1 | uniq | cut -d ';' -f 2 | sort | uniq -c | sort -nr | head | awk '{print $1 ";" $2, $3}'  > temp/data_d1.dat
 
 gnuplot_tracage -d1
 
 fin_temps=$(date +%s)
 echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
-
+rm temp/data_d1.dat
 }
 
 
@@ -163,7 +152,7 @@ echo "Traitement d2 en cours"
 debuy_temps=$(date +%s)
 
 #awk créer colonne et boucle for dedans pour calcul
-cut -d ";" -f5,6 "data/$data_fichier" | awk -F ';' ' {somme[$2] += $1} END {for (nom in somme) printf "%s; %.5f\n", nom, somme[nom]}' | sort -t";" -k2,2 -rn | head > demo/data_d2.dat
+cut -d ";" -f5,6 "data/$data_fichier" | awk -F ';' ' {somme[$2] += $1} END {for (nom in somme) printf "%s; %.5f\n", nom, somme[nom]}' | sort -t";" -k2,2 -rn | head > temp/data_d2.dat
 
 gnuplot_tracage -d2
 
@@ -171,7 +160,7 @@ gnuplot_tracage -d2
 fin_temps=$(date +%s)
 echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
-
+rm temp/data_2.dat
 }
 
 
@@ -180,23 +169,20 @@ echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
 gnuplot_l() 
 {
-
 date=$(date +"%H-%M-%Y-%S")
 
 echo "Traitement l en cours"
 debut_temps=$(date +%s)
 
 #pareil précedemment, mais colonnes prises différentes
-cut -d ';' -f1,5 "data/$data_fichier" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > demo/data_l.dat
-
-
+cut -d ';' -f1,5 "data/$data_fichier" | awk -F ';' '{noms[$1]++; distances[$1]+=$2} END {for (nom in noms) print nom ";" distances[nom]}' |sort -t ';' -k2,2 -rn | head > temp/data_l.dat
 
 gnuplot_tracage -l
-
 
 fin_temps=$(date +%s)
 echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
+rm temp/data_l.dat
 }
 
 
@@ -213,7 +199,6 @@ gnuplot_tracage -t
 
 fin_temps=$(date +%s)
 echo "Temps d'execution : ($efin_temps - $debut_temps) seconde.s "
-
 
 }
 
@@ -233,7 +218,6 @@ gnuplot_tracage -s
 fin_temps=$(date +%s)
 echo "Temps d'execution : ($fin_temps - $debut_temps) seconde.s "
 
-
 }
 
 
@@ -242,7 +226,6 @@ echo "Temps d'execution : ($fin_temps - $debut_temps) seconde.s "
 
 gnuplot_tracage()
 {
-
 #un argument est requis pour faire fonctionner fonction
 if [ "$#" -ne 1 ]; 
 then
@@ -250,10 +233,8 @@ then
         exit 1
 fi
 
-
 case "$1" in
-        
-               
+                       
         -d1)
 
 echo "Tracage en cours : -d1"
@@ -285,16 +266,16 @@ set yrange [0:250]
 set style line 1 lc rgb '#c79fef' lt 1 lw 2
 set style fill solid noborder
 
-plot 'demo/data_d1.dat' using 1:xtic(2)  with boxes linestyle 1 notitle
+plot 'temp/data_d1.dat' using 1:xtic(2)  with boxes linestyle 1 notitle
 
 EOF
 
 convert images/d1_${date}_${nom}.png -rotate 90 images/d1_${date}_${nom}.png
 
 echo 'Tracage enregistré sous : 'images/d1_${date}_${nom}.png' '
+    
      ;;
-   
-   
+     
         -d2)
 #idem d1
 echo "Tracage en cours : -d2"
@@ -324,7 +305,7 @@ set yrange [0:160000]
 set style line 1 lc rgb '#2ecc71' lt 1 lw 2
 set style fill solid noborder
 
-plot 'demo/data_d2.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
+plot 'temp/data_d2.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
 EOF
 
@@ -333,8 +314,7 @@ convert images/d2_${date}_${nom}.png -rotate 90 images/d2_${date}_${nom}.png
 echo 'Tracage enregistré sous : 'images/d2_${date}_${nom}.png' '
 
      ;;      
-       
-       
+              
        -l)
 
 echo "Tracage en cours : l"
@@ -357,26 +337,15 @@ set yrange [0:3000]
 set style line 1 lc rgb '#40e0d0' lt 1 lw 2
 set style fill solid noborder
 
-plot 'demo/data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
+plot 'temp/data_l.dat' using 2:xtic(1)  with boxes linestyle 1 notitle
 
 EOF
 
 
 echo 'Tracage enregistré sous : 'images/l_${date}_${nom}.png' '
-  
-     
+      
      ;;
-
-
-
-
-
-
-
-        
-        
-        
-        
+     
         -t)
 
 echo "Tracage en cours : -t"
@@ -408,22 +377,17 @@ set yrange [0:3500]
 set style line 1 lc rgb '#87CEEB' lt 1 lw 2
 set style line 2 lc rgb '#4169E1' lt 1 lw 2
 
-plot 'demo/data_t.dat' using 2:xtic(1)  title 'Total routes' ,  \
-    'demo/data_t.dat' using 3  title 'First Town'
+plot 'temp/data_t.dat' using 2:xtic(1)  title 'Total routes' ,  \
+    'temp/data_t.dat' using 3  title 'First Town'
 
 EOF
 
 
-echo 'Tracage enregistré sous : 'images/t_${date}_${nom}.png' '
-  
-
-           
-           
-           
-           
+echo 'Tracage enregistré sous : 'images/t_${date}_${nom}.png''         
            
            ;;
-        -s)
+       
+       -s)
 
 echo "Tracage en cours : -s"
 #tracer les lignes max, min, moyenne,
@@ -450,21 +414,22 @@ set xtics rotate by 45 offset 0, -2
 set bmargin 4
 
 
-plot 'demo/data_s.dat' using 1:4:xtic(2) with lines lc rgb "purple" lw 2 title 'Distance Average (Km)', \
-     'demo/data_s.dat' using 1:5 with lines lc rgb "blue" lw 2 title 'Distance Max/Min (Km)', \
-     'demo/data_s.dat' using 1:3 with lines lc rgb "blue" lw 2 notitle, \
-     'demo/data_s.dat' using 1:3:5 with filledcurves lc "skyblue" fs transparent solid 0.5 notitle
+plot 'temp/data_s.dat' using 1:4:xtic(2) with lines lc rgb "purple" lw 2 title 'Distance Average (Km)', \
+     'temp/data_s.dat' using 1:5 with lines lc rgb "blue" lw 2 title 'Distance Max/Min (Km)', \
+     'temp/data_s.dat' using 1:3 with lines lc rgb "blue" lw 2 notitle, \
+     'temp/data_s.dat' using 1:3:5 with filledcurves lc "skyblue" fs transparent solid 0.5 notitle
 EOF
 
 echo 'Tracage enregistré sous : 'images/s_${date}_${nom}.png' '
   
         
         ;;
+        
         *)
             echo "Argument non valide : $1"
             montrer_aide
 	    ;;
-    esac
+esac
 
 }
 
@@ -508,8 +473,7 @@ verif_nom()
 #pour plusieurs utilisations
 
 
-if [ "$#" -ne 1 ]; 
- then
+if [ "$#" -ne 1 ]; then
         echo "Usage: verif_nom <nom>"
         echo "1 seul nom requis"
 	read -p "Entrez un nom d'utilisateur : " nom
@@ -519,9 +483,8 @@ fi
 
 nom="$1"
 
-if [[ -z "$nom" || ! "$nom" =~ ^[[:alnum:]_]+$ ]]; #=~ ^[[:alnum:]_]+$ : par chat-openai
-then                                            #verifier si présence seulement caractères alphanumériques
-    echo "Erreur : le nom doit être une chaine de caractères sans espace"
+if [[ -z "$nom" || ! "$nom" =~ ^[[:alnum:]_]+$ ]]; then #=~ ^[[:alnum:]_]+$ : par chat-openai                                           
+    echo "Erreur : le nom doit être une chaine de caractères sans espace"  #verifier si présence seulement caractères alphanumériques
     read -p "Entrez un nom d'utilisateur : " nom
     verif_nom "$nom"
     return 0
@@ -529,16 +492,14 @@ fi
 
 longueur=${#nom}
 
-if ((longueur < 1 || longueur > 25)); 
-then
-  echo "Erreur : le nom doit faire entre 1 et 25 caractères"
-  read -p "Entrez un nom d'utilisateur : " nom
-  verif_nom "$nom"
-  return 0
+if ((longueur < 1 || longueur > 25)); then
+   echo "Erreur : le nom doit faire entre 1 et 25 caractères"
+   read -p "Entrez un nom d'utilisateur : " nom
+   verif_nom "$nom"
+   return 0
 fi
 
 return 0
-
 
 }
 
@@ -560,16 +521,14 @@ arguments_finaux=()
 #soit un total de 6 disponibles
 
 #si 0 argument rentré : sortie
-if  [ "$#" -eq 0 ]; 
-then
+if  [ "$#" -eq 0 ]; then
     echo "Aucun argument spécifié"$'\n'
     montrer_aide
     prog_quitter
     exit 1
 
 #si plus de 7 arguments rentrés : sortie
-elif [ "$#" -gt 7 ]; 
-then
+elif [ "$#" -gt 7 ]; then
     echo "Erreur: nombre d'arguments incorrect"$'\n'
     montrer_aide
     prog_quitter
@@ -578,19 +537,17 @@ fi
 
 #boucle pour filtrer arguments
 for arg in "$@"; 
-do
-for valid_arg in "${prog_arguments[@]}"; 
-do
-	if [ "$arg" == "$valid_arg" ]; 
-	then
-                arguments_finaux+=("$arg")
+	do
+	for valid_arg in "${prog_arguments[@]}"; 
+		do
+		if [ "$arg" == "$valid_arg" ]; then
+                	arguments_finaux+=("$arg")
                 break
-        fi
-done
+       	        fi
+	done
 done
 
 }
-
 
 
 affich_arg () 
@@ -607,13 +564,13 @@ echo ""
 
 
 
-#compteur de 10 secondes
+#compteur de 15 secondes
 #avant fermeture programme
-
+#à faire varier si besoins
 prog_quitter() 
 {
 
-for ((i = 1; i <= 10; i++)); 
+for ((i = 1; i <= 15; i++)); 
 do
 	echo $i
 	sleep 1
@@ -644,6 +601,9 @@ echo "http://gnuplot-tricks.blogspot.com/2009/10/turning-of-histogram.html"$'\n'
 echo "Pour la partie C :"
 echo "https://koor.fr/C/cstdlib/qsort.wp"
 echo ""
+echo "Pour le MakeFile :"
+echo "https://linuxpedia.fr/doku.php/dev/makefile"
+echo ""
 }
 
 verif_logiciel () {
@@ -651,8 +611,7 @@ verif_logiciel () {
 
 #vérification présence gnuplot sur appareil
 #sinon installation
-if ! command -v gnuplot &> /dev/null; #teste si gnuplot
-then
+if ! command -v gnuplot &> /dev/null; then #teste si gnuplot
         echo "Gnuplot non installé"
         # Installation sur un système basé sur Debian
         sudo apt-get update
@@ -671,7 +630,6 @@ if ! command -v convert &> /dev/null; then #teste si commande convert presence
     # Installation sur un système basé sur Debian
     sudo apt-get update
     sudo apt-get install -y imagemagick
-
 else 
     echo "ImageMagick installé sur l'appareil"
 fi
@@ -683,10 +641,6 @@ echo ""
 #--------------------------------------------------------------------
 #--------------------------------------------------------------------
 #                  MAIN PROGRAM
-
-
-
-
 
 
 echo "---------------------------------------"$'\n'
@@ -703,10 +657,8 @@ echo ""
 
 echo "---------------------------------------"$'\n'
 
-echo "Vérification de la présence des outils nécessaires"$'\n'
+echo "Vérification de la présence des outils nécessaires"
 echo "au bon fonctionnement du programme :"$'\n'
-
-echo "---------------------------------------"$'\n'
 
 fichiersC_existence 
 dossiers_existence
@@ -723,11 +675,10 @@ echo "---------------------------------------"$'\n'
 
 
 for arg in "${arguments_finaux[@]}"; do
-if [ "$arg" == "-h" ]; 
-       then
-	show_help
-	echo "---------------------------------------"$'\n'
-fi
+	if [ "$arg" == "-h" ]; then
+		show_help
+		echo "---------------------------------------"$'\n'
+	fi
 done
 
 
@@ -737,6 +688,7 @@ done
 
 for arg in "${arguments_finaux[@]}"; do
 case "$arg" in
+	
 	-d1)
 	  gnuplot_d1
 	  
@@ -784,5 +736,6 @@ echo "---------------------------------------"$'\n'
 
 echo "Fin d'execution du programme"
 prog_quitter
+
 
 
