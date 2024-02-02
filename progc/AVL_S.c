@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "Outils_AVL_S.h"
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include <sys/param.h>
+#include <stddef.h>
 
 
 
