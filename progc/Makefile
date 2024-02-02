@@ -1,6 +1,5 @@
 all: main
 
-
 SOURCES = $(wildcard *.c)
 INCLUDES = $(wildcard *.h)
 
