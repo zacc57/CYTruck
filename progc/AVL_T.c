@@ -14,7 +14,7 @@ typedef struct AVL{
 } AVL;
 
 AVL* NewAVL1(char* ville, short  depart){
-    AVL* pNew=malloc(sizeof(AVL)); //possible remplacement par stlern
+    AVL* pNew=malloc(sizeof(AVL)); 
     if (pNew==NULL){
       exit(1);
     }
@@ -195,29 +195,29 @@ int main(){
       char* line;
       size_t len=0;
       ssize_t read;
-      FILE* FD= fopen("data/data.csv", "r");
+      FILE* FD= fopen("data/data.csv", "r"); //permet de lire le fichier data.csv
       FILE* sortieFD = fopen("data_t.dat", "w");
       if (FD==NULL || sortieFD==NULL ){
           exit(1);
       }
-      while ((read = getline(&line, &len, FD)) != -1) {
-          char* strline= strtok(line,";");
+      while ((read = getline(&line, &len, FD)) != -1) { //permet de lire les lignes.
+          char* strline= strtok(line,";"); //passe à la colonnes suivantes.
           strline=strtok(NULL,";");
           int depart=atol(strline);
           strline=strtok(NULL,";");
           if (depart==1){
               char* ville=strline;
-              element1=insertElementAVL1(element1,ville,1);
+              element1=insertElementAVL1(element1,ville,1); // insert les villes de départ
           }
           strline=strtok(NULL,";");
           char* ville=strline;
-          element1=insertElementAVL1(element1,ville,0);
+          element1=insertElementAVL1(element1,ville,0); //insert les villes traversé
       }
       
      fclose(sortieFD);
     fclose(FD);
-     element2=creationABR2(element1,element2);
-      element2=transformationAVL(element2);
+     element2=creationABR2(element1,element2); //créer un ABR à partir du nombre traversé des villes dans le 1er AVL
+      element2=transformationAVL(element2); //transforme l'ABR en AVL
       Affichage(element2);
       FreeAVL(element1);
       FreeAVL(element2);
