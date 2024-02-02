@@ -5,7 +5,7 @@
 ***commande pour lancer le programme :  
 bash main.sh***  
 >se mettre à l'emplacement où se
->trouve le fichier main (voir captur d'écran
+>trouve le fichier main (voir capture d'écran
 >utilisation ci-dessous)  
   
 ## Utilisation  
