@@ -33,6 +33,20 @@ AVL* NewAVL1(char* ville, short  depart){
     return pNew;
 }
 
+AVL* NewAVL2(AVL* element){
+    AVL* pNew=malloc(sizeof(AVL)); //possible remplacement par stlern
+    if (pNew==NULL){
+      exit(1);
+    }
+    pNew->ville=strdup(element->ville);
+    pNew->NbrDepart=element->NbrDepart;
+    pNew->NbrTraverse=element->NbrTraverse;
+    pNew->FD=NULL;
+    pNew->FG=NULL;
+    pNew->Hauteur=1;
+    return pNew;
+}
+
 int Hauteur(AVL* element){
   int HauteurFD=0;
   int HauteurFG=0;
@@ -77,7 +91,7 @@ AVL* rotationAGauche(AVL*element){
 
 AVL* insertElementAVL1(AVL* element, char* ville, short depart){
     if (element==NULL){
-        return NewAVL(ville, depart);
+        return NewAVL1(ville, depart);
     }
     int compareResult = strcmp(ville, element->ville);
     if (compareResult<0){
@@ -88,10 +102,10 @@ AVL* insertElementAVL1(AVL* element, char* ville, short depart){
     }
     else {
         if (depart==1){
-            element->NbrDepart+1;
+            element->NbrDepart++;
         }
         else{
-            element->NbrTraverse+1;
+            element->NbrTraverse++;
         }
         return element;
     }
@@ -111,51 +125,77 @@ AVL* insertElementAVL1(AVL* element, char* ville, short depart){
     return element;
 }
 
-AVL* insertElementAVL2(AVL* element, AVL* pNew){
+AVL* insertElementABR2(AVL* element, AVL* pNew){
     if (element==NULL){
         return NewAVL2(pNew);
     }
 
     if (pNew->NbrTraverse<element->NbrTraverse){
-        element->FG=insertElementAVL1(element->FG, ville, depart);
+        element->FG=insertElementABR2(element->FG, pNew);
     }
-    else if (pNew->NbrTraverse>element->NbrTraverse){
-        element->FD=insertElementAVL1(element->FD, ville, depart);
+    else if (pNew->NbrTraverse>=element->NbrTraverse){
+        element->FD=insertElementABR2(element->FD, pNew);
     }
 
     element->Hauteur=Hauteur(element);
-    if (fequilibre(element)<=-2){
-        if (fequilibre(element->FD)>0){
-            element->FD=rotationADroite(element->FD);
-        }
-        element=rotationAGauche(element);
+    return element;
+}
+
+AVL* creationABR2(AVL* element1,AVL* element2){
+    if(element1==NULL){
+        return 0;
     }
-    else if (fequilibre(element)>=2){
-        if (fequilibre(element->FG)<0){
-            element->FG=rotationAGauche(element->FG);
+    element2=insertElementABR2(element2,element1);
+    creationABR2(element1->FD,element2);
+    creationABR2(element1->FG,element2);
+    return element2;
+}
+
+AVL* transformationAVL(AVL* element){
+    while(fequilibre(element)<=-2 && fequilibre(element)>=-2){
+        if (fequilibre(element)<=-2){
+            if (fequilibre(element->FD)>0){
+                element->FD=rotationADroite(element->FD);
+            }
+            element=rotationAGauche(element);
         }
-        element=rotationADroite(element);
+        else if (fequilibre(element)>=2){
+            if (fequilibre(element->FG)<0){
+                element->FG=rotationAGauche(element->FG);
+            }
+            element=rotationADroite(element);
+        }
     }
     return element;
 }
 
-void Affichage(AVL*element){
-      if (element==NULL){
+
+
+void Affichage(AVL* element){ //affiche et supprime le dernier élément
+      if(element==NULL){
           return;
       }
       Affichage(element->FD);
-      printf("%s ", element->ville);
-      printf("%s %d;","depart->",element->NbrDepart);
-      printf("%s %d\n","depart->",element->NbrTraverse);
-
+      printf ("%s;%d;%d\n", element->ville,element->NbrTraverse,element->NbrDepart);
       Affichage(element->FG);
 }
+
+void FreeAVL(AVL* element) {
+    if (element != NULL) {
+        FreeAVL(element->FG);
+        FreeAVL(element->FD);
+        free(element->ville);
+        free(element);
+    }
+}
+
 int main(){
-      AVL* element=NULL;
+      AVL* element1=NULL;
+      AVL* element2=NULL;
       char* line;
       size_t len=0;
       ssize_t read;
-      FILE* FD= fopen("toto.txt", "r");
+      FILE* FD= fopen("data/data.csv", "r");
       if (FD==NULL){
           exit(1);
       }
@@ -166,14 +206,19 @@ int main(){
           strline=strtok(NULL,";");
           if (depart==1){
               char* ville=strline;
-              element=insertElementAVL1(element,ville,1);
+              element1=insertElementAVL1(element1,ville,1);
           }
           strline=strtok(NULL,";");
           char* ville=strline;
-          element=insertElementAVL1(element,ville,0);
+          element1=insertElementAVL1(element1,ville,0);
       }
-      CreationAVL2(element);
-      Affichage(element);
+      element2=creationABR2(element1,element2);
+      element2=transformationAVL(element2);
+      Affichage(element2);
+      FreeAVL(element1);
+      FreeAVL(element2);
       return 0;
-  }
+}
+
+
 
