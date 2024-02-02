@@ -160,7 +160,7 @@ gnuplot_tracage -d2
 fin_temps=$(date +%s)
 echo "Temps d'execution : $(($fin_temps - $debut_temps)) seconde.s"$'\n'
 
-rm temp/data_2.dat
+rm temp/data_d2.dat
 }
 
 
