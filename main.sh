@@ -710,14 +710,18 @@ case "$arg" in
 	 ;;
 	
 	-t)
-	 gnuplot_t
-	 ./ALVT
+	./ALVT
+         mv "$racine/progc/data_t.dat" "$racine/temp" 
+         gnuplot_t
+	 
          echo "---------------------------------------"$'\n'
 	 ;;
 	
 	-s)
-	 gnuplot_s
 	 ./AVLS
+          mv "$racine/progc/data_s.dat" "$racine/temp" 
+	  gnuplot_s
+	
          echo "---------------------------------------"$'\n'
 	 ;;
 	
