@@ -1,18 +1,40 @@
-#ifndef FONCTIONSAVLC_H
-#define FOONCTIONSAVLC_H
+#ifndef AVLT_fonctions
+#define AVLT_fonctions
 
-AVL* rotationDroite(AVL* noeud)
+typedef struct AVL{
+    struct AVL* FD;
+    struct AVL* FG;
+    char* ville;
+    int NbrTraverse;
+    int NbrDepart;
+    int Hauteur;
+} AVL;
 
-AVL* rotationGauche(AVL* noeud)
+AVL* NewAVL1(char* ville, short  depart){
+    
 
-equilibrage(AVL* noeud)
+int Hauteur(AVL* element){
+  
 
-AVL* insertionAVL(AVL* noeud, char* ville, int nombre_trajet, int nombre_depart)
+int fequilibre(AVL* element){
+   
+AVL* rotationADroite(AVL*element){
+    AVL* pivot=element->FG;
+    element->FG=element->FG->FD;
+    pivot->FD=element;
+    element->Hauteur=Hauteur(element);
+    pivot->Hauteur=Hauteur(element);
+    return pivot;
+}
 
-void parcoursInfixe(AVL* noeud)
+AVL* rotationAGauche(AVL*element){
+    
 
-int max(int a, int b)
+AVL* insertElementAVL1(AVL* element, char* ville, short depart){
+    
 
-int hauteur(struct AVL* noeud)
+AVL* insertElementAVL2(AVL* element, AVL* pNew){
+   
 
+void Affichage(AVL*element){
 #endif
