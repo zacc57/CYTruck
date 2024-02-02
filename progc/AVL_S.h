@@ -1,18 +1,35 @@
 #ifndef AVLS_FONCTIONS
 #define AVLS_FONCTIONS
 
-AVL* rotationDroite(AVL* noeud)
+typedef struct AVL{
+    struct AVL* FD;
+    struct AVL* FG;
+    int stepID;
+    int occurence;
+    int distanceMAX;
+    int distanceMIN;
+    int sommeDistance;
+    int moyenne;
+} AVL;
 
-AVL* rotationGauche(AVL* noeud)
+AVL* NewAVL1(int ID, int distance)
+   
 
-equilibrage(AVL* noeud)
+AVL* NewAVL2(AVL*element)
+    
+int Hauteur(AVL* element)
+  
+int fequilibre(AVL* element)
+    
 
-AVL* insertionAVL(AVL* noeud, char* ville, int nombre_trajet, int nombre_depart)
+AVL* rotationADroite(AVL*element)
+    
 
-void parcoursInfixe(AVL* noeud)
+AVL* rotationAGauche(AVL*element)
+    
 
-int max(int a, int b)
-
-int hauteur(struct AVL* noeud)
+AVL* insertElementAVL1(AVL* element, int stepID, int distance, )
+    
+void FreeAVL(AVL* element) 
 
 #endif
