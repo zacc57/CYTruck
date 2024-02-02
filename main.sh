@@ -200,6 +200,7 @@ gnuplot_tracage -t
 fin_temps=$(date +%s)
 echo "Temps d'execution : ($efin_temps - $debut_temps) seconde.s "
 
+rm temp/data_t.dat
 }
 
 
@@ -218,6 +219,7 @@ gnuplot_tracage -s
 fin_temps=$(date +%s)
 echo "Temps d'execution : ($fin_temps - $debut_temps) seconde.s "
 
+rm temp/data_s.dat
 }
 
 
