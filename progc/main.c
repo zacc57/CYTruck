@@ -1,3 +1,5 @@
+#include AVLT_FONCTIONS
+
 int main() {
 
     if (clef == 1) {
