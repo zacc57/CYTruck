@@ -215,7 +215,7 @@ int main(){
       }
       
      fclose(sortieFD);
-    fclose(FD)
+    fclose(FD);
      element2=creationABR2(element1,element2);
       element2=transformationAVL(element2);
       Affichage(element2);
