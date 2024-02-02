@@ -196,7 +196,7 @@ int main(){
       size_t len=0;
       ssize_t read;
       FILE* FD= fopen("data/data.csv", "r");
-      FILE* sortieFD = fopen("temp/data_t.dat", "w");
+      FILE* sortieFD = fopen("data_t.dat", "w");
       if (FD==NULL || sortieFD==NULL ){
           exit(1);
       }
