@@ -1,11 +1,5 @@
-all: main
+gcc -o AVLT AVL_T.c
+gcc -o AVLS AVL_S.c
 
-SOURCES = $(wildcard *.c)
-INCLUDES = $(wildcard *.h)
-
-main : $(SOURCES) $(INCLUDES)
-        gcc -o "$@" $(SOURCES) -g -Wno-everything -pthread -lm 
-
-clean:
-        rm -f main
-
+clean :
+ rm -f AVLT AVLS
