@@ -1,5 +1,5 @@
-#ifndef AVLT_fonctions
-#define AVLT_fonctions
+#ifndef AVLT_FONCTIONS
+#define AVLT_FONCTIONS
 
 typedef struct AVL{
     struct AVL* FD;
