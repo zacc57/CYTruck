@@ -195,6 +195,8 @@ date=$(date +"%H-%M-%Y-%S")
 echo "Traitement t en cours"
 debut_temps=$(date +%s)
 
+
+tail temp/data_t.dat
 gnuplot_tracage -t
 
 fin_temps=$(date +%s)
