@@ -1,11 +1,11 @@
 all: main
 
 
-SRCS = $(wildcard *.c)
-HEADERS = $(wildcard *.h)
+SOURCES = $(wildcard *.c)
+INCLUDES = $(wildcard *.h)
 
-main : $(SRCS) $(HEADERS)
-        gcc -o "$@" $(SRCS) -g -Wno-everything -pthread -lm 
+main : $(SOURCES) $(INCLUDES)
+        gcc -o "$@" $(SOURCES) -g -Wno-everything -pthread -lm 
 
 clean:
         rm -f main
