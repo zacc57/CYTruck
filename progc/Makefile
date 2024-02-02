@@ -4,7 +4,7 @@ all: main
 SRCS = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 
-CY_Truck: $(SRCS) $(HEADERS)
+main : $(SRCS) $(HEADERS)
         gcc -o "$@" $(SRCS) -g -Wno-everything -pthread -lm 
 
 clean:
